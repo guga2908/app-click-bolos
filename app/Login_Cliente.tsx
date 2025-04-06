@@ -25,7 +25,7 @@ const VerificarCaixadeTexto = (inputText :string) =>{
             <TextInput
             value={texto}
             onChangeText={VerificarCaixadeTexto}/>
-            <Button title='Entrar' onPress={()=>router.push('/Usuários/Tela_Principal')}
+            <Button title='Entrar' onPress={()=>router.push('/Usuario/perfil')}
             disabled={!liberarBotao}
             />
             <Button title='Voltar' onPress={()=> router.push('/Index')}/>

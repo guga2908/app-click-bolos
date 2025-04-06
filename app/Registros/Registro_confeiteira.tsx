@@ -1,6 +1,6 @@
 import { useRouter } from "expo-router";
 import { useState } from "react";
-import { Text, TextInput, View } from "react-native";
+import { Button, Text, TextInput, View } from "react-native";
 
 
 
@@ -28,19 +28,36 @@ export default function registrarConfeiteira(){
     return(
         <View>
             <Text>Nome Completo:</Text>
-            <TextInput/>
+            <TextInput
+            value={formData.registro}
+            onChangeText={(text)=>{indetificarTexto('registro', text)}}/>
             <Text>Nome da empresa:</Text>
-            <TextInput/>
+            <TextInput
+            value={formData.registro2}
+            onChangeText={(text)=>{indetificarTexto('registro2', text)}}/>
             <Text>Telefone:</Text>
-            <TextInput/>
+            <TextInput
+            value={formData.registro3}
+            onChangeText={(text)=>{indetificarTexto('registro3', text)}}/>
             <Text>Endereço:</Text>
-            <TextInput/>
+            <TextInput
+            value={formData.registro4}
+            onChangeText={(text)=>{indetificarTexto('registro4', text)}}/>
             <Text>Data de Nascimento:</Text>
-            <TextInput/>
+            <TextInput
+            value={formData.registro5}
+            onChangeText={(text)=>{indetificarTexto('registro5', text)}}/>
             <Text>E-mail:</Text>
-            <TextInput/>
+            <TextInput
+            value={formData.registro6}
+            onChangeText={(text)=>{indetificarTexto('registro6', text)}}/>
             <Text>Senha:</Text>
-            <TextInput/>
+            <TextInput  
+            value={formData.registro7}
+            onChangeText={(text)=>{indetificarTexto('registro7', text)}}/>
+
+          <Button title='Registrar' disabled={!liberar} onPress={()=>{router.push('/Confeiteira/perfil_confeiteira')}}/>
+        <Button title='Voltar' onPress={()=>{router.push('/Registros/Registro') }}/>
         </View>
     )
 }

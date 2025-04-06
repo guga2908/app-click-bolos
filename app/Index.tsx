@@ -8,7 +8,7 @@ export default function Tela_De_Seleção(){
         <View>
             <Button title="Confeiteira" onPress={()=>router.push('../Login_Confeiteira')}/>
             <Button title="Cliente" onPress={()=> router.push('/Login_Cliente')}/>
-            <Button title="Registrar" onPress={()=> router.push('/Registros/Registros')}/>
+            <Button title="Registrar" onPress={()=> router.push('/Registros/Registro')}/>
         </View>
     )
 }
