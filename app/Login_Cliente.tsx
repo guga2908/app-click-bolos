@@ -4,6 +4,7 @@ import { Button, Text, TextInput, View } from 'react-native';
 
 
 export default function Login_Usuarios(){
+    /* conectar essa pagina no banco de dados para ela funcionar da maneira correta*/
     const router = useRouter();
     const [texto, setTexto] = useState('');
     const [liberarBotao, setliberarBotao] = useState(false);

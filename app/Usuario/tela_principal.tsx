@@ -1,0 +1,1 @@
+/*começar essa pagina o mais breve possivel */

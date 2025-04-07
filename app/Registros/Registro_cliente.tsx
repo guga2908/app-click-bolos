@@ -4,6 +4,9 @@ import { Button, Text, TextInput, View } from 'react-native';
 
 
 export default function registrarCliente(){
+    /**talves colocar essa parte de registro em um aquivo difentes e importar para aki 
+     * porem ainda tenho duvida de como fazer isso e como 
+     */
     const router = useRouter();
     const [registro, setRegistro] = useState('');
     const [registro2, setRegistro2] = useState('');

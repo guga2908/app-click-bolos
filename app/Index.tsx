@@ -3,7 +3,7 @@ import { Button, Text, View } from "react-native";
 
 export default function Tela_De_Seleção(){
     const router = useRouter();
-
+/* talves nao precise mudar mais essa pagina */
     return(
         <View>
             <Button title="Confeiteira" onPress={()=>router.push('../Login_Confeiteira')}/>

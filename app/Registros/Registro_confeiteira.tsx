@@ -6,6 +6,10 @@ import { Button, Text, TextInput, View } from "react-native";
 
 
 export default function registrarConfeiteira(){
+       /**talves colocar essa parte de registro em um aquivo difentes e importar para aki 
+     * porem ainda tenho duvida de como fazer isso e como 
+     * conectar ao banco dados para registar os cadastros novos 
+     */
     const router = useRouter();
     const [formData, setFormData] = useState({
         registro :'',

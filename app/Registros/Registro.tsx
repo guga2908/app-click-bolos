@@ -1,4 +1,5 @@
 import { useRouter } from 'expo-router';
+import { useState } from 'react';
 import{ Button, Text, View }from 'react-native'
 
 
@@ -13,4 +14,9 @@ export default function(){
             <Button title='Voltar' onPress={()=> router.push('/Index')}/>
         </View>
     )
+}
+export function Cadastros(){
+    const [formData, setFormData] = useState({
+        
+    })
 }
