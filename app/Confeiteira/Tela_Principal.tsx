@@ -11,7 +11,7 @@ return(
         <View>
             <Pressable onPress={()=> router.push('/Confeiteira/perfil_confeiteira')}>
             <Image
-           source={require('../../assets/images/')}
+           source={require('../../assets/images/lala.png')}
            style={{ width: 100, height: 100 }}/>
            </Pressable>
             <Text>Titulo</Text>

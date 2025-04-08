@@ -55,7 +55,7 @@ export default function Perfil (){
             {catalogoBolos.map((Bolo)=>(
                 <View key={Bolo.id}>
                 <Image
-        source={require('../../imagens/lala.png')}
+        source={require('../../assets/images/lala.png')}
         style={{ width: 100, height: 100 }}/> // Caminho da imagem local
                 <Text>{Bolo.nome}</Text>
                 <Text>{Bolo.preco}</Text>

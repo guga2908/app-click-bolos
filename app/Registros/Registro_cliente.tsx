@@ -1,78 +1,85 @@
-import { useRouter } from 'expo-router';
+'use client';
+
 import { useState } from 'react';
-import { Button, Text, TextInput, View } from 'react-native';
+import { renderInfo } from '@/app/render-info';
 
+export default function RegistroCliente() {
+  const [formData, setFormData] = useState({
+    nome: '',
+    email: '',
+    telefone: '',
+    endereco: '',
+    datadenascimento: '',
+    senha: '',
+  });
 
-export default function registrarCliente(){
-    /**talves colocar essa parte de registro em um aquivo difentes e importar para aki 
-     * porem ainda tenho duvida de como fazer isso e como 
-     */
-    const router = useRouter();
-    const [registro, setRegistro] = useState('');
-    const [registro2, setRegistro2] = useState('');
-    const [registro3, setRegistro3] = useState('');
-    const [registro4, setRegistro4] = useState('');
-    const [registro5, setRegistro5] = useState('');
-    const [registro6, setRegistro6] = useState('');
-    
-    const [liberar,setLiberar] = useState(false);
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
 
-    const verificarCampos = ()=> {
-      
-        if(registro.trim()!=='' && registro2.trim()!=='' && registro3.trim()!=='' && registro4.trim()!=='' && registro5.trim()!=='' && registro6.trim()!==''){
-            setLiberar(true);
-        }else{
-            setLiberar(false);
-        }
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      await renderInfo(
+        formData.nome,
+        formData.email,
+        formData.telefone,
+        formData.endereco,
+        new Date(formData.datadenascimento),
+        formData.senha
+      );
+      alert('Cliente registrado com sucesso!');
+    } catch (error) {
+      console.error(error);
+      alert('Erro ao registrar cliente.');
     }
+  };
 
-    return(
-        <View>
-        <Text>Nome Completo:</Text>
-        <TextInput    
-        value={registro}
-        onChangeText={(texto)=>{
-            setRegistro(texto)
-            verificarCampos();
-        }}/>
-        <Text>E-mail:</Text>
-        <TextInput
-        value={registro2}
-        onChangeText={(texto)=>{
-            setRegistro2(texto)
-            verificarCampos();
-        }}/>
-        <Text>Telefone:</Text>
-        <TextInput
-        value={registro3}
-        onChangeText={(texto)=>{
-            setRegistro3(texto)
-            verificarCampos();
-        }}/>
-        <Text>Endereço:</Text>
-        <TextInput
-        value={registro4}
-        onChangeText={(texto)=>{
-            setRegistro4(texto)
-            verificarCampos();
-        }}/>
-        <Text>data de nascimento:</Text>
-        <TextInput
-        value={registro5}
-        onChangeText={(texto)=>{
-            setRegistro5(texto)
-            verificarCampos();
-        }}/>
-        <Text>senha:</Text>
-        <TextInput
-        value={registro6}
-        onChangeText={(texto)=>{
-            setRegistro6(texto)
-            verificarCampos();
-        }}/>
-        <Button title='Registrar' disabled={!liberar}/>
-        <Button title='Voltar' onPress={()=>router.push('/Registros/Registro')}/>
-       </View>
-       
-    )
+  return (
+    <form onSubmit={handleSubmit}>
+      <input
+        type="text"
+        name="nome"
+        placeholder="Nome"
+        value={formData.nome}
+        onChange={handleChange}
+      />
+      <input
+        type="email"
+        name="email"
+        placeholder="Email"
+        value={formData.email}
+        onChange={handleChange}
+      />
+      <input
+        type="text"
+        name="telefone"
+        placeholder="Telefone"
+        value={formData.telefone}
+        onChange={handleChange}
+      />
+      <input
+        type="text"
+        name="endereco"
+        placeholder="Endereço"
+        value={formData.endereco}
+        onChange={handleChange}
+      />
+      <input
+        type="date"
+        name="datadenascimento"
+        value={formData.datadenascimento}
+        onChange={handleChange}
+      />
+      <input
+        type="password"
+        name="senha"
+        placeholder="Senha"
+        value={formData.senha}
+        onChange={handleChange}
+      />
+      <button type="submit">Registrar</button>
+    </form>
+  );
 }
