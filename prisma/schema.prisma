@@ -19,6 +19,17 @@ model Cliente {
   email String 
   telefone String
   endereco String
-  datadenascimento DateTime
+  datanascimento DateTime
+  senha String  
+}
+
+model Confeiteira{
+  id Int @id @default(autoincrement())
+  nome String 
+  nomeloja String
+  email String 
+  telefone String
+  endereco String
+  datanascimento DateTime
   senha String  
 }

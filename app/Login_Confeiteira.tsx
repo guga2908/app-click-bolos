@@ -29,7 +29,7 @@ return(
          value={texto}
          onChangeText={VerificarCaixadeTexto}
          />
-        <Button title="Entrar" onPress={()=> router.push('/Confeiteira/tela_principal')} 
+        <Button title="Entrar" onPress={()=> router.push('../../Confeiteira/tela_principal')} 
         disabled={!liberarBotao}/>
         <Button title='Voltar' onPress={()=> router.push('/Index')}/>
     </View>

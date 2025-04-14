@@ -1,15 +1,22 @@
 'use client';
 
+import { router } from 'expo-router';
 import { useState } from 'react';
-import { renderInfo } from '@/app/render-info';
 
+
+    /*tive uma dicas de como prosseguir e qual caminho devo pegar este aplicativo tera como 
+    cliente final o usuario e nao a boleira / confeiteira devo seguir esta linha de raciocinio e
+    criar um aplicativo que seja mais voltado para o usuario final e nao para a boleira / confeiteira
+    mais nao devo neglegir a boleira / confeiteira pois ela sera a pessoa que ira cadastrar os bolos e o usuario final
+    */
+// parte de regitro de usuario final finalizada  possivei adiçoes de melhorias
 export default function RegistroCliente() {
   const [formData, setFormData] = useState({
     nome: '',
     email: '',
     telefone: '',
     endereco: '',
-    datadenascimento: '',
+    datanascimento: '',
     senha: '',
   });
 
@@ -17,20 +24,36 @@ export default function RegistroCliente() {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
-
+//tentando conectar o banco mais esta dando o erro HTTP 500
+  // 500 Internal Server Error
+  // tentarei mais tarde
+  // manipulei apenas esses arquivos
+  // erro consertado pelomenos ate agora 
+  
+  
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await renderInfo(
-        formData.nome,
-        formData.email,
-        formData.telefone,
-        formData.endereco,
-        new Date(formData.datadenascimento),
-        formData.senha
-      );
+      const clienteData: Cliente = {
+        ...formData,
+        datanascimento: new Date(formData.datanascimento),
+      }
+      const response = await fetch('/api/rota', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(clienteData),
+
+      });
+      console.log(response);
+      if (!response.ok) {
+        throw new Error('Erro ao registrar cliente');
+      }
       alert('Cliente registrado com sucesso!');
+      router.push('/Usuario/perfil')
     } catch (error) {
+      alert (error||'Erro ao registrar cliente.');
       console.error(error);
       alert('Erro ao registrar cliente.');
     }
@@ -68,8 +91,8 @@ export default function RegistroCliente() {
       />
       <input
         type="date"
-        name="datadenascimento"
-        value={formData.datadenascimento}
+        name="datanascimento"
+        value={formData.datanascimento}
         onChange={handleChange}
       />
       <input

@@ -5,7 +5,12 @@ import { Button, Image, ScrollView, Text, TextInput, View } from "react-native";
 export default function Perfil (){
     const [texto, setTexto]= useState ('Descrição');
     const [editado, setEditado] = useState(false);
-//pagina finalizada por enquanto, quando começar no laravel colocar os codigos corretos
+
+    /*tive uma dicas de como prosseguir e qual caminho devo pegar este aplicativo tera como 
+    cliente final o usuario e nao a boleira / confeiteira devo seguir esta linha de raciocinio e
+    criar um aplicativo que seja mais voltado para o usuario final e nao para a boleira / confeiteira
+    mais nao devo neglegir a boleira / confeiteira pois ela sera a pessoa que ira cadastrar os bolos e o usuario final
+    */
     const salvar = ()=> {
         setEditado(false);
     }
@@ -25,7 +30,7 @@ export default function Perfil (){
           <Text>{Bolo}</Text>
         </View>
       );
-      const onPress =()=> router.push('/Confeiteira/catalogo_de_bolos')
+      const onPress =()=> router.push('../../Confeiteira/Adicionar_novo_bolo')
 
     return(
 <View>
@@ -39,8 +44,6 @@ export default function Perfil (){
             onChangeText={setTexto}
             editable = {editado}
             maxLength={480}
-
-            /** começar a utilizar o laravel para conectar a um banco de dados para comecar a fazer os codigos corretos */
             />
             {editado ?(
             <Button title="Salvar" onPress={salvar}/>) :(
@@ -62,6 +65,8 @@ export default function Perfil (){
                 </View>
                 ))}
             </ScrollView>
+
+            <Button title="Adicionar Bolo" onPress={onPress}/>
     </View>
 
 </View>
