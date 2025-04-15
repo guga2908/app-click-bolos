@@ -1,7 +1,8 @@
 import { router } from "expo-router";
 import { useState } from "react";
 import { Button, Image, ScrollView, Text, TextInput, View } from "react-native";
-//import lala from '../../imagens/lala.png';
+
+
 export default function Perfil (){
     const [texto, setTexto]= useState ('Descrição');
     const [editado, setEditado] = useState(false);
@@ -10,6 +11,14 @@ export default function Perfil (){
     cliente final o usuario e nao a boleira / confeiteira devo seguir esta linha de raciocinio e
     criar um aplicativo que seja mais voltado para o usuario final e nao para a boleira / confeiteira
     mais nao devo neglegir a boleira / confeiteira pois ela sera a pessoa que ira cadastrar os bolos e o usuario final
+    */
+
+    /*
+    criar uma nova tabela no banco de dados para armazenar as informações da confeiteira e do catalogo de bolos
+    e criar uma nova tela para adicionar novos bolos ao catalogo da confeiteira
+    adicionar um ImagenPicker para a confeiteira adicionar uma imagem de perfil
+    e conectar tudo isso com o banco de dados, 
+
     */
     const salvar = ()=> {
         setEditado(false);
