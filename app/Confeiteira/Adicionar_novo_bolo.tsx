@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Button, Image, Text, TextInput, View } from "react-native";
 import * as ImagePicker from "expo-image-picker";
 import { useRouter } from "expo-router";
+import * as FileSystem from "expo-file-system";
  /*tive uma dicas de como prosseguir e qual caminho devo pegar este aplicativo tera como 
     cliente final o usuario e nao a boleira / confeiteira devo seguir esta linha de raciocinio e
     criar um aplicativo que seja mais voltado para o usuario final e nao para a boleira / confeiteira
@@ -38,11 +39,18 @@ export default function AdicionarBolos() {
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
       allowsEditing: true,
       quality: 1,
+      base64: false,
     });
 
     if (!result.canceled) {
-      setImagem(result.assets[0].uri); // Salvar o URI da imagem selecionada
-    }
+      const uri = result.assets[0].uri; // Salvar o URI da imagem selecionada
+
+      const base64 = await FileSystem.readAsStringAsync(uri, {
+        encoding: FileSystem.EncodingType.Base64,
+    });
+    console.log("Base64:", base64);
+    setImagem(base64);
+  }
   };
 
   const adicionarBolo = async () => {
@@ -51,23 +59,19 @@ export default function AdicionarBolos() {
       return;
     }
 
-    const formData = new FormData();
-    formData.append("valor", valorBolo);
-    formData.append("nome", nomeBolo);
-    formData.append("descricao", descricaoBolo);
-    formData.append("imagem", {
-      uri: imagem,
-      name: "bolo.jpg",
-      type: "image/jpeg",
-    } as any);
-
+    const boloData = {
+      valor: valorBolo,
+      nome: nomeBolo,
+      descricao: descricaoBolo,
+      imagem: imagem,
+    };
     try {
       const response = await fetch("api/rota", {
         method: "POST",
         headers: {
           "Content-Type": "multipart/form-data",
         },
-        body: formData,
+        body: JSON.stringify(boloData),
       });
 
       if (!response.ok) {
@@ -98,6 +102,7 @@ export default function AdicionarBolos() {
       placeholder="Valor do Bolo"
       value={valorBolo}
       onChangeText={setValorBolo}
+      keyboardType="numeric"
       />
         <Text>Selecione uma imagem do bolo:</Text>
       <Button title="Selecionar Imagem" onPress={selecionarImagem} />
