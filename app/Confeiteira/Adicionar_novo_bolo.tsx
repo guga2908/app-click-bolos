@@ -25,6 +25,8 @@ export default function AdicionarBolos() {
   const [descricaoBolo, setDescricaoBolo] = useState("");
   const [imagem, setImagem] = useState<string | null>(null);
   const [valorBolo, setValorBolo] = useState("");
+  const [pesoBolo, setPesoBolo] = useState("");
+  const [saborBolo, setSaborBolo] = useState("");
 
   const selecionarImagem = async () => {
     // Solicitar permissão para acessar a galeria
@@ -54,7 +56,7 @@ export default function AdicionarBolos() {
   };
 
   const adicionarBolo = async () => {
-    if (!nomeBolo || !descricaoBolo || !imagem || !valorBolo) {
+    if (!nomeBolo || !descricaoBolo || !imagem || !valorBolo || !pesoBolo || !saborBolo) {
       alert("Preencha todos os campos e selecione uma imagem!");
       return;
     }
@@ -64,6 +66,9 @@ export default function AdicionarBolos() {
       nome: nomeBolo,
       descricao: descricaoBolo,
       imagem: imagem,
+      peso: pesoBolo,
+      sabor: saborBolo,
+      
     };
     try {
       const response = await fetch("api/rota", {
@@ -103,6 +108,17 @@ export default function AdicionarBolos() {
       value={valorBolo}
       onChangeText={setValorBolo}
       keyboardType="numeric"
+      />
+      <TextInput
+      placeholder="Peso do Bolo"
+      value={pesoBolo}
+      onChangeText={setPesoBolo}
+      keyboardType="numeric"
+      />
+      <TextInput
+      placeholder="Sabor do Bolo"
+      value={saborBolo}
+      onChangeText={setSaborBolo}
       />
         <Text>Selecione uma imagem do bolo:</Text>
       <Button title="Selecionar Imagem" onPress={selecionarImagem} />

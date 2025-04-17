@@ -32,4 +32,22 @@ model Confeiteira{
   endereco String
   datanascimento DateTime
   senha String  
+  imagem String
+  descricao String
+  
+ 
+ bolos ConfeiteiraBolos[] 
+}
+
+model ConfeiteiraBolos{
+  id Int @id @default(autoincrement())
+  nome String 
+  imagem String
+  descricao String
+  preco Float
+  peso Float
+  sabor String
+  
+  confeiteira Confeiteira @relation(fields: [idConfeiteira], references: [id])
+  idConfeiteira Int
 }

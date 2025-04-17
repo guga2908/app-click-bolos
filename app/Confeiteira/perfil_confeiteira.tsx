@@ -1,5 +1,5 @@
 import { router } from "expo-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button, Image, Pressable, ScrollView, Text, TextInput, View } from "react-native";
 import * as ImagePicker from "expo-image-picker";
 
@@ -23,6 +23,7 @@ export default function Perfil (){
     const [imagem, setImagem] = useState<string | null>(null);
     const [descricao, setDescricao] = useState("");
     const [modoEdicao, setModoEdicao] = useState(false);
+    const [catalogo, setCatalogo] = useState([]);
     
 const onPress =() => (router.push("/Confeiteira/Adicionar_novo_bolo"));
 
@@ -50,6 +51,19 @@ alert ("Perfil salvo com sucesso!");
         // await api.post('/perfil', { nomeloja, horarioInicio, horarioFim, descricao });
         //router.push("/Confeiteira/catalogo_confeiteira")
 };
+
+useEffect(() => {
+    const buscarCatalogo = async () => {
+        try{
+            const response = await fetch('/api/rota');
+            const data = await response.json();
+            setCatalogo(data);
+        }catch (error) {
+            console.error("Erro ao buscar catalogo:", error);
+        }
+    };
+    buscarCatalogo();
+}, []);
 
     const selecionarImagem = async () => {
         const {status} = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -126,16 +140,18 @@ alert ("Perfil salvo com sucesso!");
             
     </View> 
     
-    <View /** coloquei um ScrollView para os catalogo dos Bolos*/>
+    <View /* coloquei um ScrollView para os catalogo dos Bolos*/>
 
             <Text>Catalogo</Text>
             <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-                <View>
-                    <Image/>
-                    <Text></Text>
-                    <Text></Text>
+                {catalogo.map((bolo, index) => (
+                <View key={index}>
+                    <Image source={{uri: bolo.imagem}} style={{width: 100, height: 100}}/>
+                    <Text>{bolo.nome}</Text>
+                    <Text>{bolo.descricao}</Text>
+                    <Text>{bolo.preco}</Text>
                 </View>
-
+))}
             </ScrollView>
 
             <Button title="Adicionar Bolo" onPress={onPress}/>
