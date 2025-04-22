@@ -1,4 +1,4 @@
-import { router } from "expo-router";
+import { useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import { Button, Image, Pressable, ScrollView, Text, TextInput, View } from "react-native";
 import * as ImagePicker from "expo-image-picker";
@@ -23,7 +23,17 @@ export default function Perfil (){
     const [imagem, setImagem] = useState<string | null>(null);
     const [descricao, setDescricao] = useState("");
     const [modoEdicao, setModoEdicao] = useState(false);
-    const [catalogo, setCatalogo] = useState([]);
+    interface Bolo {
+        nome: string;
+        descricao: string;
+        preco: string;
+        sabor: string;
+        tipo: string;
+        imagem: string;
+    }
+
+    const [catalogo, setCatalogo] = useState<Bolo[]>([]);
+    const router = useRouter();
     
 const onPress =() => (router.push("/Confeiteira/Adicionar_novo_bolo"));
 
@@ -31,30 +41,62 @@ const onPress =() => (router.push("/Confeiteira/Adicionar_novo_bolo"));
         const regex = /^(0[0-9]|1[0-9]|2[0-3]):([0-5][0-9])$/
         return regex.test(horario);
     };
-    const salvarPerfil = () => {
+    useEffect(() => {
+        const buscarDadosConfeiteira = async () => {
+            try{
+                const perfilResponse = await fetch('/api/rota');
+                const perfilData = await perfilResponse.json();
+                setNomeloja(perfilData.nomeloja || "");
+                setHorarioInicio(perfilData.horarioInicio || "");
+                setHorarioFim(perfilData.horarioFim || ""); 
+                setDescricao(perfilData.descricao || "");
+                setImagem(perfilData.imagem || null);
+
+                const catalogoResponse = await fetch('/api/rota');
+                const catalogoData = await catalogoResponse.json();
+                setCatalogo(catalogoData || []);
+            }catch (error) {
+                console.error("Erro ao buscar dados da confeiteira:", error);
+            }
+        };
+        buscarDadosConfeiteira();
+    },[]);
+    const salvarPerfil = async () => {
         if (validarHorario(horarioInicio) && validarHorario(horarioFim)) {
             alert("Por Favor, Informe o Horario de Abertura e Fechamento corretamente")
             return;
     }
-    console.log({
+    const perfilData = {   
         nomeloja,
         horarioInicio,
         horarioFim,
         descricao,
         imagem,
-    })
-alert ("Perfil salvo com sucesso!");    
+    }   
     
-        // Aqui você pode adicionar a lógica para salvar o perfil, como enviar os dados para um servidor ou banco de dados.
-        // Por exemplo, você pode usar uma função assíncrona para fazer uma requisição HTTP para salvar os dados.
-        // Exemplo:
-        // await api.post('/perfil', { nomeloja, horarioInicio, horarioFim, descricao });
-        //router.push("/Confeiteira/catalogo_confeiteira")
+    try {
+        const response = await fetch('/api/confeiteira/confeiteira', {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(perfilData),
+    });
+        if (!response.ok) {
+            throw new Error('Erro ao salvar perfil');
+        }
+        alert('Perfil salvo com sucesso!');
+        setModoEdicao(false);
+    } catch (error) {
+        console.error('Erro ao salvar perfil:', error);
+        alert('Erro ao salvar perfil. Tente novamente mais tarde.');
+    }
 };
 
 useEffect(() => {
     const buscarCatalogo = async () => {
         try{
+
             const response = await fetch('/api/rota');
             const data = await response.json();
             setCatalogo(data);
@@ -141,21 +183,22 @@ useEffect(() => {
     </View> 
     
     <View /* coloquei um ScrollView para os catalogo dos Bolos*/>
+  <Text>Catálogo</Text>
+  <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+    {catalogo.map((bolo, index) => (
+      <View key={index}>
+        <Image source={{ uri: bolo.imagem }} style={{ width: 100, height: 100 }} />
+        <Text>Nome: {bolo.nome}</Text>
+        <Text>Descrição: {bolo.descricao}</Text>
+        <Text>Preço: {bolo.preco}</Text>
+        <Text>Sabor: {bolo.sabor}</Text>
+        <Text>Tipo: {bolo.tipo}</Text> {/* Exibe o tipo do bolo */}
+      </View>
+    ))}
+  </ScrollView>
 
-            <Text>Catalogo</Text>
-            <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-                {catalogo.map((bolo, index) => (
-                <View key={index}>
-                    <Image source={{uri: bolo.imagem}} style={{width: 100, height: 100}}/>
-                    <Text>{bolo.nome}</Text>
-                    <Text>{bolo.descricao}</Text>
-                    <Text>{bolo.preco}</Text>
-                </View>
-))}
-            </ScrollView>
-
-            <Button title="Adicionar Bolo" onPress={onPress}/>
-    </View>
+  <Button title="Adicionar Bolo" onPress={onPress} />
+</View>
 
 </View>
     )
