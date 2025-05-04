@@ -1,56 +1,126 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "mysql"
   url      = env("DATABASE_URL")
 }
 
-model Cliente {
-  id Int @id @default(autoincrement())
-  nome String 
-  email String 
-  telefone String
-  endereco String
+model cliente {
+  id             Int      @id @default(autoincrement())
+  nome           String
+  email          String
+  telefone       String
+  endereco       String
   datanascimento DateTime
-  senha String  
-  descricao String
-  ConfFavoritas ConFavoritas[] 
+  senha          String
+  pedido pedido[]
+  carrinho carrinho[]
+  comentarios comentarios[]
+  favoritos favoritos[]
 }
 
-model Confeiteira{
-  id Int @id @default(autoincrement())
-  nome String 
-  nomeloja String
-  email String 
-  telefone String
-  endereco String
+model confeiteira {
+  id             Int      @id @default(autoincrement())
+  nome           String
+  nomeloja       String
+  email          String
+  telefone       String
+  endereco       String
   datanascimento DateTime
-  senha String  
-  imagem String
-  descricao String
-  
+  senha          String
+  imagem         String?
+  descricao      String?
+  bolos Bolo[]
+  pedidos pedido[]
+  relacoes comentariosConfeiteira[]
+  favoritos favoritos[]
 }
 
-model ConfeiteiraBolos{
+model Bolo{
   id Int @id @default(autoincrement())
-  nome String 
+  nome String
   imagem String
   preco Float
   sabor String
   tipo String
   descricao String
+  confeiteiraId Int
+  confeiteira confeiteira @relation(fields: [confeiteiraId], references: [id])
+  ItemPedido ItensPedido[]
+  personalizacao personalizacao[]
+}
+model personalizacao{
+  id Int @id @default(autoincrement())
+  nome String
+  valor_opcao Float
+  boloId Int
+  bolo Bolo @relation(fields: [boloId], references: [id])
 }
 
-model ConFavoritas{
+ model pedido {
   id Int @id @default(autoincrement())
-  confeiteira Cliente @relation(fields: [confeiteiraId], references: [id])
+  NumeroPedido Int
+  nomeloja String
+  nomecliente String
+  endereco String
+  dataPedido DateTime
+  valorTotal Float
+  status String
+  pagamento String
   confeiteiraId Int
+  confeiteira confeiteira @relation(fields: [confeiteiraId], references: [id])
+  clienteId Int
+  cliente cliente @relation(fields: [clienteId], references: [id])
+  carrinho carrinho[]
+  itensPedido ItensPedido[]
+ }
+ model carrinho {
+  id Int @id @default(autoincrement())
+  nome String
+  imagem String
+  preco Float
+  sabor String
+  tipo String
+  clienteId Int
+  cliente cliente @relation(fields: [clienteId], references: [id])
+  pedidoId Int
+  pedido pedido @relation(fields: [pedidoId], references: [id])
+ }
+model ItensPedido {
+  quantidade Int
+  preco_unitario Float
+  pedidoId Int
+  pedido pedido @relation(fields: [pedidoId], references: [id])
+  boloId Int
+  bolo Bolo @relation(fields: [boloId], references: [id])
+
+  @@id([pedidoId, boloId])
+}
+model comentarios{
+  id Int @id @default(autoincrement())
+  comentario String
+  data DateTime
+  clienteId Int
+  cliente cliente @relation(fields: [clienteId], references: [id])
+  comentarioConfeiteira comentariosConfeiteira[]
+}
+
+model comentariosConfeiteira{
+comentario String
+comentarioId Int
+comentarioRelacionados comentarios @relation(fields: [comentarioId], references: [id])
+confeiteiraId Int
+confeiteira confeiteira @relation(fields: [confeiteiraId], references: [id])
+@@id([comentarioId, confeiteiraId])
+}
+model favoritos{
+  nomeloja String
+  imagem String
+  confeiteiraId Int
+  confeiteira confeiteira @relation(fields: [confeiteiraId], references: [id])
+  clienteId Int
+  cliente cliente @relation(fields: [clienteId], references: [id])
+  @@id([confeiteiraId, clienteId])
 }

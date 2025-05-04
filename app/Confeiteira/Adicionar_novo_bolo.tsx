@@ -1,21 +1,27 @@
-import React, { useState } from "react";
-import { Button, Image, Text, TextInput, View } from "react-native";
+import React, { useState, useEffect } from "react";
+import { Button, Image, Text, TextInput, View, Platform, Alert } from "react-native";
 import { Picker } from "@react-native-picker/picker";
 import * as ImagePicker from "expo-image-picker";
 import { useRouter } from "expo-router";
-import * as FileSystem from "expo-file-system";
 
 export default function AdicionarBolos() {
   const router = useRouter();
+  /* const [confeiteiraId, setConfeiteiraId] = useState<number | null>(null); */
   const [nomeBolo, setNomeBolo] = useState("");
   const [descricaoBolo, setDescricaoBolo] = useState("");
   const [imagem, setImagem] = useState<string | null>(null);
   const [valorBolo, setValorBolo] = useState("");
   const [pesoBolo, setPesoBolo] = useState("");
   const [saborBolo, setSaborBolo] = useState("");
-  const [tipoBolo, setTipoBolo] = useState(""); // Estado para o tipo do bolo
+  const [tipoBolo, setTipoBolo] = useState("");
+
 
   const selecionarImagem = async () => {
+    if (Platform.OS === "web") {
+      alert("Use o campo abaixo para selecionar uma imagem no ambiente web.");
+      return;
+    }
+
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (status !== "granted") {
       alert("Permissão para acessar a galeria é necessária!");
@@ -26,17 +32,22 @@ export default function AdicionarBolos() {
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
       allowsEditing: true,
       quality: 1,
-      base64: false,
     });
 
     if (!result.canceled) {
       const uri = result.assets[0].uri;
+      setImagem(uri);
+    }
+  };
 
-      const base64 = await FileSystem.readAsStringAsync(uri, {
-        encoding: FileSystem.EncodingType.Base64,
-      });
-      console.log("Base64:", base64);
-      setImagem(base64);
+  const handleFileInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = () => {
+        setImagem(reader.result as string);
+      };
+      reader.readAsDataURL(file);
     }
   };
 
@@ -47,32 +58,37 @@ export default function AdicionarBolos() {
     }
 
     const boloData = {
-      valor: valorBolo,
       nome: nomeBolo,
       descricao: descricaoBolo,
       imagem: imagem,
+      preco: parseFloat(valorBolo),
       peso: pesoBolo,
       sabor: saborBolo,
       tipo: tipoBolo,
+/*       confeiteiraId: confeiteiraId, */
     };
 
+    console.log("Dados enviados para o backend:", boloData);
+
     try {
-      const response = await fetch("api/rota", {
+      const response = await fetch("/api/rota", {
         method: "POST",
         headers: {
-          "Content-Type": "multipart/form-data",
+          "Content-Type": "application/json",
         },
         body: JSON.stringify(boloData),
       });
 
       if (!response.ok) {
+        const errorData = await response.json();
+        console.error("Erro do backend:", errorData);
         throw new Error("Erro ao adicionar bolo");
       }
 
       alert("Bolo adicionado com sucesso!");
       router.push("/Confeiteira/perfil_confeiteira");
     } catch (error) {
-      console.error(error);
+      console.error("Erro ao adicionar bolo:", error);
       alert("Erro ao adicionar bolo.");
     }
   };
@@ -119,10 +135,15 @@ export default function AdicionarBolos() {
         <Picker.Item label="Personalizado" value="personalizado" />
       </Picker>
       <Text>Selecione uma imagem do bolo:</Text>
-      <Button title="Selecionar Imagem" onPress={selecionarImagem} />
+      {Platform.OS === "web" ? (
+        <input type="file" accept="image/*" onChange={handleFileInputChange} />
+      ) : (
+        <Button title="Selecionar Imagem" onPress={selecionarImagem} />
+      )}
       {imagem && <Image source={{ uri: imagem }} style={{ width: 200, height: 200 }} />}
       <Button title="Adicionar Bolo ao Catálogo" onPress={adicionarBolo} />
       <Button title="Cancelar" onPress={() => router.push("/Confeiteira/perfil_confeiteira")} />
+    {/*   <Text>ID da Confeiteira: {confeiteiraId}</Text> */}
     </View>
   );
 }

@@ -1,21 +1,5 @@
 import { prisma } from "@/lib/prisma";
 
-export async function GET() {
-  try {
-    // Busca todas as confeiteiras no banco de dados
-    const confeiteiras = await prisma.confeiteira.findMany();
-    return new Response(JSON.stringify(confeiteiras), {
-      status: 200,
-      headers: { "Content-Type": "application/json" },
-    });
-  } catch (error) {
-    console.error(error);
-    return new Response(JSON.stringify({ error: "Erro ao buscar confeiteiras" }), {
-      status: 500,
-    });
-  }
-}
-
 export async function POST(request: Request) {
   try {
     const data = await request.json();
@@ -37,11 +21,34 @@ export async function POST(request: Request) {
       status: 200,
     });
   } catch (error) {
-    console.error(error);
+    console.error("Erro ao criar registro:", error);
     return new Response(JSON.stringify({ error: (error instanceof Error ? error.message : "Erro interno no servidor") }), {
       status: 500,
     });
   }
 }
 
+export async function PUT(request: Request) {
+  try {
+    const data = await request.json();
 
+    if (!data.id) {
+      throw new Error("ID da confeiteira não fornecido");
+    }
+
+    const confeiteiraAtualizada = await prisma.confeiteira.update({
+      where: { id: data.id },
+      data,
+    });
+
+    return new Response(JSON.stringify(confeiteiraAtualizada), {
+      status: 200,
+      headers: { "Content-Type": "application/json" },
+    });
+  } catch (error) {
+    console.error("Erro ao atualizar confeiteira:", error);
+    return new Response(JSON.stringify({ error: (error instanceof Error ? error.message : "Erro interno no servidor") }), {
+      status: 500,
+    });
+  }
+}

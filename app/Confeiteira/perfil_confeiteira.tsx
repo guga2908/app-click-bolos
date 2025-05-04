@@ -1,5 +1,5 @@
 import { useRouter } from "expo-router";
-import { useEffect, useState } from "react";
+import { useEffect, useId, useState } from "react";
 import { Button, Image, Pressable, ScrollView, Text, TextInput, View } from "react-native";
 import * as ImagePicker from "expo-image-picker";
 
@@ -44,7 +44,7 @@ const onPress =() => (router.push("/Confeiteira/Adicionar_novo_bolo"));
     useEffect(() => {
         const buscarDadosConfeiteira = async () => {
             try{
-                const perfilResponse = await fetch('/api/rota');
+                const perfilResponse = await fetch(`http://192.168.100.1/api/rota/${useId}`);
                 const perfilData = await perfilResponse.json();
                 setNomeloja(perfilData.nomeloja || "");
                 setHorarioInicio(perfilData.horarioInicio || "");
@@ -75,7 +75,7 @@ const onPress =() => (router.push("/Confeiteira/Adicionar_novo_bolo"));
     }   
     
     try {
-        const response = await fetch('/api/confeiteira/confeiteira', {
+        const response = await fetch('/api/rota', {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
@@ -182,7 +182,7 @@ useEffect(() => {
             
     </View> 
     
-    <View /* coloquei um ScrollView para os catalogo dos Bolos*/>
+    <View>
   <Text>Catálogo</Text>
   <ScrollView horizontal showsHorizontalScrollIndicator={false}>
     {catalogo.map((bolo, index) => (

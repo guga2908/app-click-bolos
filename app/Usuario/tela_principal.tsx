@@ -30,7 +30,7 @@ export default function TelaPrincipalUsuario() {
   useEffect(() => {
     const buscarConfeiteiras = async () => {
       try {
-        const response = await fetch("/api/rota"); // Substitua pela URL da sua API
+        const response = await fetch("http://localhost:8081/api/rota"); // Substitua pela URL correta
         if (!response.ok) {
           throw new Error("Erro ao buscar confeiteiras");
         }

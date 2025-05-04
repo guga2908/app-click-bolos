@@ -17,5 +17,15 @@ interface Confeiteira{
     endereco: string;
     datanascimento: Date;
     senha: string;
+    descricao: string;
 
+}
+
+interface Bolo{
+    nome: string;
+    descricao: string;
+    preco: string;
+    sabor: string;
+    tipo: string;
+    imagem: string;
 }
