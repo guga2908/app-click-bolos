@@ -47,9 +47,14 @@ export default function RegistroCliente() {
 
       });
       console.log(response);
-      if (!response.ok) {
-        throw new Error('Erro ao registrar cliente');
-      }
+
+      //DEIXEI COMENTADO CASO PRECISE UTILIZAR DE NOVO,ESTAVA VOLTANDO DOIS ALERTS DE ERRO AO MESMO TEMPO
+      
+      //if (!response.ok) {
+      //  throw new Error('Erro ao registrar cliente');
+    //  }
+
+
       alert('Cliente registrado com sucesso!');
       router.push('/Usuario/perfil')
     } catch (error) {

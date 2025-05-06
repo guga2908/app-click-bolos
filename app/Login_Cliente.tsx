@@ -4,7 +4,7 @@ import { Button, Text, TextInput, View } from 'react-native';
 
 
 export default function Login_Usuarios(){
-    /* conectar essa pagina no banco de dados para ela funcionar da maneira correta*/
+    /*Conectar essa pagina no banco de dados para ela funcionar da maneira correta*/
     const router = useRouter();
     const [texto, setTexto] = useState('');
     const [liberarBotao, setliberarBotao] = useState(false);
@@ -21,14 +21,13 @@ const VerificarCaixadeTexto = (inputText :string) =>{
     return(
         <View>
             <Text>Login:</Text>
-            <TextInput/>
             <Text>Senha:</Text>
             <TextInput
-            value={texto}
-            onChangeText={VerificarCaixadeTexto}/>
+                value={texto}
+                onChangeText={VerificarCaixadeTexto}/>
             <Button title='Entrar' onPress={()=>router.push('/Usuario/perfil')}
-            disabled={!liberarBotao}
-            />
+                disabled={!liberarBotao}
+                />
             <Button title='Voltar' onPress={()=> router.push('/Index')}/>
         </View>
     )

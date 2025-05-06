@@ -26,11 +26,11 @@ return(
         <TextInput/>
         <Text>Senha:</Text>
         <TextInput
-         value={texto}
-         onChangeText={VerificarCaixadeTexto}
-         />
+            value={texto}
+            onChangeText={VerificarCaixadeTexto}
+        />
         <Button title="Entrar" onPress={()=> router.push('../../Confeiteira/tela_principal')} 
-        disabled={!liberarBotao}/>
+            disabled={!liberarBotao}/>
         <Button title='Voltar' onPress={()=> router.push('/Index')}/>
     </View>
 )

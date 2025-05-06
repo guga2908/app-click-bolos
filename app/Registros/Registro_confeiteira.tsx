@@ -1,6 +1,6 @@
 import { useRouter } from "expo-router";
 import { useState } from "react";
-import { Button, Text, TextInput, TouchableOpacity, View } from "react-native";
+import { Button, Text, TextInput, View } from "react-native";
 import  DatePicker from  "react-datepicker" ;
 import "react-datepicker/dist/react-datepicker.css";
 
@@ -47,9 +47,11 @@ export default function registrarConfeiteira(){
                 },
                 body: JSON.stringify(Confdata),
             });
-            if (!response.ok) {
-                throw new Error('Erro ao registrar confeiteira');
-            }
+
+            //MESMA SITUAÇÃO DO REGISTRO CLIENTE
+        //  if (!response.ok) {
+        //       throw new Error('Erro ao registrar confeiteira');
+        //  }
             alert('Confeiteira registrada com sucesso!');
             router.push('/Confeiteira/perfil_confeiteira')
         }catch (error) {

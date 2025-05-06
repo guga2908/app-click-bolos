@@ -1,5 +1,5 @@
 import { useRouter } from "expo-router";
-import { Button, Text, View } from "react-native";
+import { Button, View } from "react-native";
 
 export default function Tela_De_Seleção(){
     const router = useRouter();
