@@ -5,8 +5,23 @@ import { styles } from '../../Estilos/estiloPerfilConfeiteira'
 
 export default function PerfilConfeteira() {
   const { id } = useLocalSearchParams(); // Recupera o ID da confeiteira da URL
-  const [confeiteira, setConfeiteira] = useState(null);
-  const [catalogo, setCatalogo] = useState([]);
+  interface Confeiteira {
+    imagem: string;
+    nome: string;
+    horarioInicio: string;
+    horarioFim: string;
+    descricao: string;
+    catalogo: Array<{
+      id: number;
+      imagem: string;
+      nome: string;
+      descricao: string;
+      preco: number;
+    }>;
+  }
+
+  const [confeiteira, setConfeiteira] = useState<Confeiteira | null>(null);
+  const [catalogo, setCatalogo] = useState<Confeiteira["catalogo"]>([]);
 
   useEffect(() => {
     const buscarConfeiteira = async () => {

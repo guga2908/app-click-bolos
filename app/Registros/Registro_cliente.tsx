@@ -3,6 +3,15 @@
 import { router } from 'expo-router';
 import { useState } from 'react';
 
+interface Cliente {
+  nome: string;
+  email: string;
+  telefone: string;
+  endereco: string;
+  datanascimento: Date;
+  senha: string;
+}
+
 
     /*tive uma dicas de como prosseguir e qual caminho devo pegar este aplicativo tera como 
     cliente final o usuario e nao a boleira / confeiteira devo seguir esta linha de raciocinio e

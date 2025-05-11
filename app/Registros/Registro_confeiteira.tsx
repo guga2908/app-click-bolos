@@ -2,6 +2,17 @@ import { useRouter } from "expo-router";
 import { useState } from "react";
 import { Button, Text, TextInput, View } from "react-native";
 import  DatePicker from  "react-datepicker" ;
+
+// Define the Confeiteira type
+interface Confeiteira {
+    nome: string;
+    nomeloja: string;
+    telefone: string;
+    endereco: string;
+    datanascimento: Date | string;
+    email: string;
+    senha: string;
+}
 import "react-datepicker/dist/react-datepicker.css";
 
 

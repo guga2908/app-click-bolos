@@ -2,16 +2,27 @@
   "extends": "expo/tsconfig.base",
   "compilerOptions": {
     "strict": true,
+    "baseUrl": "./",
     "paths": {
       "@/*": [
         "./*"
       ]
-    }
+    },
+    "typeRoots": ["./node_modules/@types", "./@types"],
+    "esModuleInterop": true,
+    "target": "ES6",
+    "module": "es2015",
+    "outDir": "./dist",
+    "rootDir": "./",
+    "resolveJsonModule": true
   },
   "include": [
     "**/*.ts",
     "**/*.tsx",
     ".expo/types/**/*.ts",
-    "expo-env.d.ts"
-  ]
+    "expo-env.d.ts",
+    "servicos/server.ts",
+    "./**/*.ts"
+  ],
+  "exclude": ["node_modules"]
 }
