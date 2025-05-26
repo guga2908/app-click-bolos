@@ -8,119 +8,144 @@ datasource db {
 }
 
 model cliente {
-  id             Int      @id @default(autoincrement())
+  id             Int           @id @default(autoincrement())
   nome           String
   email          String
   telefone       String
   endereco       String
   datanascimento DateTime
   senha          String
-  pedido pedido[]
-  carrinho carrinho[]
-  comentarios comentarios[]
-  favoritos favoritos[]
+  carrinho       carrinho[]
+  comentarios    comentarios[]
+  favoritos      favoritos[]
+  pedido         pedido[]
 }
 
 model confeiteira {
-  id             Int      @id @default(autoincrement())
-  nome           String
-  nomeloja       String
-  email          String
-  telefone       String
-  endereco       String
-  datanascimento DateTime
-  senha          String
-  imagem         String?
-  descricao      String?
-  bolos Bolo[]
-  pedidos pedido[]
-  relacoes comentariosConfeiteira[]
-  favoritos favoritos[]
+  id                     Int                      @id @default(autoincrement())
+  nome                   String
+  nomeloja               String
+  email                  String
+  telefone               String
+  endereco               String
+  datanascimento         DateTime
+  senha                  String
+  imagem                 String?
+  descricao              String?
+  horarioFim             String?
+  horarioInicio          String?
+  bolo                   bolo[]
+  comentariosconfeiteira comentariosconfeiteira[]
+  favoritos              favoritos[]
+  pedidos                pedido[]
 }
 
-model Bolo{
-  id Int @id @default(autoincrement())
-  nome String
-  imagem String
-  preco Float
-  sabor String
-  tipo String
-  descricao String
-  confeiteiraId Int
-  confeiteira confeiteira @relation(fields: [confeiteiraId], references: [id])
-  ItemPedido ItensPedido[]
-  personalizacao personalizacao[]
-}
-model personalizacao{
-  id Int @id @default(autoincrement())
-  nome String
+model personalizacao {
+  id          Int    @id @default(autoincrement())
+  nome        String
   valor_opcao Float
-  boloId Int
-  bolo Bolo @relation(fields: [boloId], references: [id])
+  boloId      Int
+  bolo        bolo   @relation(fields: [boloId], references: [id])
+
+  @@index([boloId], map: "personalizacao_boloId_fkey")
 }
 
- model pedido {
-  id Int @id @default(autoincrement())
-  NumeroPedido Int
-  nomeloja String
-  nomecliente String
-  endereco String
-  dataPedido DateTime
-  valorTotal Float
-  status String
-  pagamento String
+model pedido {
+  id            Int           @id @default(autoincrement())
+  NumeroPedido  Int
+  nomeloja      String
+  nomecliente   String
+  endereco      String
+  dataPedido    DateTime
+  valorTotal    Float
+  status        String
+  pagamento     String
   confeiteiraId Int
-  confeiteira confeiteira @relation(fields: [confeiteiraId], references: [id])
+  clienteId     Int
+  carrinho      carrinho[]
+  itenspedido   itenspedido[]
+  cliente       cliente       @relation(fields: [clienteId], references: [id])
+  confeiteira   confeiteira   @relation(fields: [confeiteiraId], references: [id])
+
+  @@index([clienteId], map: "pedido_clienteId_fkey")
+  @@index([confeiteiraId], map: "pedido_confeiteiraId_fkey")
+}
+
+model carrinho {
+  id        Int     @id @default(autoincrement())
+  nome      String
+  imagem    String
+  preco     Float
+  sabor     String
+  tipo      String
   clienteId Int
-  cliente cliente @relation(fields: [clienteId], references: [id])
-  carrinho carrinho[]
-  itensPedido ItensPedido[]
- }
- model carrinho {
-  id Int @id @default(autoincrement())
-  nome String
-  imagem String
-  preco Float
-  sabor String
-  tipo String
-  clienteId Int
-  cliente cliente @relation(fields: [clienteId], references: [id])
-  pedidoId Int
-  pedido pedido @relation(fields: [pedidoId], references: [id])
- }
-model ItensPedido {
-  quantidade Int
+  pedidoId  Int
+  cliente   cliente @relation(fields: [clienteId], references: [id])
+  pedido    pedido  @relation(fields: [pedidoId], references: [id])
+
+  @@index([clienteId], map: "carrinho_clienteId_fkey")
+  @@index([pedidoId], map: "carrinho_pedidoId_fkey")
+}
+
+model comentarios {
+  id                     Int                      @id @default(autoincrement())
+  comentario             String
+  data                   DateTime
+  clienteId              Int
+  cliente                cliente                  @relation(fields: [clienteId], references: [id])
+  comentariosconfeiteira comentariosconfeiteira[]
+
+  @@index([clienteId], map: "comentarios_clienteId_fkey")
+}
+
+model favoritos {
+  nomeloja      String
+  imagem        String
+  confeiteiraId Int
+  clienteId     Int
+  cliente       cliente     @relation(fields: [clienteId], references: [id])
+  confeiteira   confeiteira @relation(fields: [confeiteiraId], references: [id])
+
+  @@id([confeiteiraId, clienteId])
+  @@index([clienteId], map: "favoritos_clienteId_fkey")
+}
+
+model bolo {
+  id             Int              @id @default(autoincrement())
+  nome           String
+  imagem         String
+  preco          Float
+  sabor          String
+  tipo           String?
+  descricao      String
+  confeiteiraId  Int
+  peso           Float
+  confeiteira    confeiteira      @relation(fields: [confeiteiraId], references: [id], map: "Bolo_confeiteiraId_fkey")
+  itenspedido    itenspedido[]
+  personalizacao personalizacao[]
+
+  @@index([confeiteiraId], map: "Bolo_confeiteiraId_fkey")
+}
+
+model comentariosconfeiteira {
+  comentario    String
+  comentarioId  Int
+  confeiteiraId Int
+  comentarios   comentarios @relation(fields: [comentarioId], references: [id], map: "comentariosConfeiteira_comentarioId_fkey")
+  confeiteira   confeiteira @relation(fields: [confeiteiraId], references: [id], map: "comentariosConfeiteira_confeiteiraId_fkey")
+
+  @@id([comentarioId, confeiteiraId])
+  @@index([confeiteiraId], map: "comentariosConfeiteira_confeiteiraId_fkey")
+}
+
+model itenspedido {
+  quantidade     Int
   preco_unitario Float
-  pedidoId Int
-  pedido pedido @relation(fields: [pedidoId], references: [id])
-  boloId Int
-  bolo Bolo @relation(fields: [boloId], references: [id])
+  pedidoId       Int
+  boloId         Int
+  bolo           bolo   @relation(fields: [boloId], references: [id], map: "ItensPedido_boloId_fkey")
+  pedido         pedido @relation(fields: [pedidoId], references: [id], map: "ItensPedido_pedidoId_fkey")
 
   @@id([pedidoId, boloId])
-}
-model comentarios{
-  id Int @id @default(autoincrement())
-  comentario String
-  data DateTime
-  clienteId Int
-  cliente cliente @relation(fields: [clienteId], references: [id])
-  comentarioConfeiteira comentariosConfeiteira[]
-}
-
-model comentariosConfeiteira{
-comentario String
-comentarioId Int
-comentarioRelacionados comentarios @relation(fields: [comentarioId], references: [id])
-confeiteiraId Int
-confeiteira confeiteira @relation(fields: [confeiteiraId], references: [id])
-@@id([comentarioId, confeiteiraId])
-}
-model favoritos{
-  nomeloja String
-  imagem String
-  confeiteiraId Int
-  confeiteira confeiteira @relation(fields: [confeiteiraId], references: [id])
-  clienteId Int
-  cliente cliente @relation(fields: [clienteId], references: [id])
-  @@id([confeiteiraId, clienteId])
+  @@index([boloId], map: "ItensPedido_boloId_fkey")
 }

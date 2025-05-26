@@ -1,6 +1,6 @@
 
 
-interface Cliente{
+export interface Cliente{
     nome: string;
     email: string;
     telefone: string;
@@ -9,7 +9,7 @@ interface Cliente{
     senha: string;
 }
 
-interface Confeiteira{
+ export interface Confeiteira{
     nome: string;
     nomeloja: string;
     email: string;
@@ -21,7 +21,7 @@ interface Confeiteira{
 
 }
 
-interface Bolo{
+export interface Bolo{
     nome: string;
     descricao: string;
     preco: string;

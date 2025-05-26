@@ -1,7 +1,6 @@
 import { useRouter } from "expo-router";
 import { useState } from "react";
 import { Alert, Button, Text, TextInput, View } from "react-native"
-
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export default function Login_Boleira(){
@@ -10,43 +9,32 @@ export default function Login_Boleira(){
 const router = useRouter();
 const [email, setEmail] = useState('');
 const [senha, setSenha] = useState('');
-const [loading, setLoading] = useState(false);
 
-const identificarlogin = async () => {
-    if(!email || !senha){
-        Alert.alert('Preencha todos os campos');
-        return;
-    }
-    setLoading(true);
-    try {
-        const response = await fetch('http://26.41.136.188:8081/servicos/rota/loginConf', {
+const indentificarlogin = async () => {
+    try{
+        console.log('Email:', email);
+        console.log('Senha:', senha);
+        const confeiteira = await fetch('http://localhost:8081/login', { 
             method: 'POST',
-            mode: 'no-cors',
             headers: {
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({ email, senha }),
         });
-
-        if (!response.ok) {
-            throw new Error('Erro ao fazer login');
+        if (!confeiteira.ok) {
+            const errorData = await confeiteira.json();
+            Alert.alert("Erro ao fazer login", errorData.error || "Erro desconhecido");
+            return;
         }
-
-        const { token, id, nomeloja } = await response.json();
-        await AsyncStorage.setItem('token', token);
-      // Salvar o token no armazenamento local (opcional)
-      // Você pode usar AsyncStorage ou SecureStore
-      // Exemplo com AsyncStorage:
-      // await AsyncStorage.setItem("token", token);
-      Alert.alert('Login realizado com sucesso');
-      router.push('/Confeiteira/perfil_confeiteira');
-}catch (error) {
-    console.error("Erro ao fazer login:", error);
-    Alert.alert('Erro ao fazer login', 'Verifique suas credenciais e tente novamente');
-} finally {
-    setLoading(false);  
+        const data = await confeiteira.json();
+        await AsyncStorage.setItem("confeiteiraId", data.id);
+        Alert.alert('Login realizado', `ID da confeiteira: ${data.id}`);
+         router.push(`./Confeiteira/perfilConfeiteiras/${data.id}`);
+    }catch (error) {
+        console.error("Erro ao fazer login:", error);
+        Alert.alert('Erro ao fazer login', 'Verifique suas credenciais e tente novamente');
 }
-};
+}
 
 return(
     <View>
@@ -63,9 +51,8 @@ return(
         onChangeText={setSenha}
         secureTextEntry
         />
-        <Button title={loading ? "Carregando...":"Entrar"} onPress={identificarlogin} disabled={loading}/>
-        <Button title='Voltar' onPress={()=> router.push('/Index')}/>
+        <Button title={"Entrar"} onPress={indentificarlogin}/>
+        <Button title='Voltar' onPress={()=> router.push('./index')}/>
     </View>
 )
-
 }

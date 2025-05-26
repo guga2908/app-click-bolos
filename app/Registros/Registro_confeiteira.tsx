@@ -51,20 +51,21 @@ export default function registrarConfeiteira(){
                 ...formData,
                 datanascimento: data,
             }
-            const response = await fetch('/api/rota', {
+            const response = await fetch('http://localhost:8081/registrar', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify(Confdata),
             });
-
-            //MESMA SITUAÇÃO DO REGISTRO CLIENTE
-        //  if (!response.ok) {
-        //       throw new Error('Erro ao registrar confeiteira');
-        //  }
+            if (!response.ok) {
+                const errorData = await response.json();
+                alert(errorData.error || 'Erro desconhecido');
+                return;
+            }
+        const result = await response.json();
             alert('Confeiteira registrada com sucesso!');
-            router.push('/Confeiteira/perfil_confeiteira')
+     router.push(`./Confeiteira/perfilConfeiteiras/${result.id}`);
         }catch (error) {
             alert(error || 'Erro ao registrar confeiteira.');
             console.error(error);

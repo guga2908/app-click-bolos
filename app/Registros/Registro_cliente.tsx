@@ -1,122 +1,131 @@
-'use client';
+import React, { useState } from 'react';
+import { View, Text, TextInput, Button, Alert, Platform, Pressable } from 'react-native';
+import { useRouter } from 'expo-router';
+import DateTimePicker from '@react-native-community/datetimepicker';
+import  DatePicker from  "react-datepicker" ;
 
-import { router } from 'expo-router';
-import { useState } from 'react';
-
-interface Cliente {
-  nome: string;
-  email: string;
-  telefone: string;
-  endereco: string;
-  datanascimento: Date;
-  senha: string;
-}
-
-
-    /*tive uma dicas de como prosseguir e qual caminho devo pegar este aplicativo tera como 
-    cliente final o usuario e nao a boleira / confeiteira devo seguir esta linha de raciocinio e
-    criar um aplicativo que seja mais voltado para o usuario final e nao para a boleira / confeiteira
-    mais nao devo neglegir a boleira / confeiteira pois ela sera a pessoa que ira cadastrar os bolos e o usuario final
-    */
-// parte de regitro de usuario final finalizada  possivei adiçoes de melhorias
 export default function RegistroCliente() {
+  const router = useRouter();
   const [formData, setFormData] = useState({
     nome: '',
     email: '',
     telefone: '',
     endereco: '',
-    datanascimento: '',
+    datanascimento: '', // formato YYYY-MM-DD
     senha: '',
   });
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
+  const [showDatePicker, setShowDatePicker] = useState(false);
+  const [date, setDate] = useState<Date>(new Date());
+
+  const handleChange = (name: string, value: string) => {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
-//tentando conectar o banco mais esta dando o erro HTTP 500
-  // 500 Internal Server Error
-  // tentarei mais tarde
-  // manipulei apenas esses arquivos
-  // erro consertado pelomenos ate agora 
-  
-  
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+
+  const handleDateChange = (event: any, selectedDate?: Date) => {
+    setShowDatePicker(false);
+    if (selectedDate) {
+      setDate(selectedDate);
+      // Salva no formato YYYY-MM-DD
+      const iso = selectedDate.toISOString().split('T')[0];
+      handleChange('datanascimento', iso);
+    }
+  };
+
+  const handleSubmit = async () => {
+    if (
+      !formData.nome ||
+      !formData.email ||
+      !formData.telefone ||
+      !formData.endereco ||
+      !formData.datanascimento ||
+      !formData.senha
+    ) {
+      Alert.alert('Preencha todos os campos!');
+      return;
+    }
+
     try {
-      const clienteData: Cliente = {
-        ...formData,
-        datanascimento: new Date(formData.datanascimento),
-      }
-      const response = await fetch('/api/rota', {
+      const response = await fetch('http://localhost:8081/registrar-cliente', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(clienteData),
-
+        body: JSON.stringify({
+          ...formData,
+        }),
       });
-      console.log(response);
-
-      //DEIXEI COMENTADO CASO PRECISE UTILIZAR DE NOVO,ESTAVA VOLTANDO DOIS ALERTS DE ERRO AO MESMO TEMPO
-      
-      //if (!response.ok) {
-      //  throw new Error('Erro ao registrar cliente');
-    //  }
-
-
-      alert('Cliente registrado com sucesso!');
-      router.push('/Usuario/perfil')
+      if (!response.ok) {
+        const errorData = await response.json();
+        Alert.alert(errorData.error || 'Erro desconhecido');
+        return;
+      }
+      const result = await response.json();
+      Alert.alert('Cliente registrado com sucesso!');
+      router.push(`/Usuario/perfil/${result.id}`);
     } catch (error) {
-      alert (error||'Erro ao registrar cliente.');
+      Alert.alert('Erro ao registrar cliente.');
       console.error(error);
-      alert('Erro ao registrar cliente.');
     }
   };
 
+  function indetificarTexto(name: string, value: string) {
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  }
+
   return (
-    <form onSubmit={handleSubmit}>
-      <input
-        type="text"
-        name="nome"
-        placeholder="Nome"
+    <View style={{ padding: 20 }}>
+      <Text>Nome:</Text>
+      <TextInput
         value={formData.nome}
-        onChange={handleChange}
+        onChangeText={(text) => handleChange('nome', text)}
+        placeholder="Nome"
+        style={{ borderWidth: 1, marginBottom: 10, padding: 5 }}
       />
-      <input
-        type="email"
-        name="email"
-        placeholder="Email"
+      <Text>Email:</Text>
+      <TextInput
         value={formData.email}
-        onChange={handleChange}
+        onChangeText={(text) => handleChange('email', text)}
+        placeholder="Email"
+        keyboardType="email-address"
+        style={{ borderWidth: 1, marginBottom: 10, padding: 5 }}
       />
-      <input
-        type="text"
-        name="telefone"
-        placeholder="Telefone"
+      <Text>Telefone:</Text>
+      <TextInput
         value={formData.telefone}
-        onChange={handleChange}
+        onChangeText={(text) => handleChange('telefone', text.replace(/[^0-9]/g, ""))}
+        placeholder="Telefone"
+        keyboardType="phone-pad"
+        style={{ borderWidth: 1, marginBottom: 10, padding: 5 }}
       />
-      <input
-        type="text"
-        name="endereco"
-        placeholder="Endereço"
+      <Text>Endereço:</Text>
+      <TextInput
         value={formData.endereco}
-        onChange={handleChange}
+        onChangeText={(text) => handleChange('endereco', text)}
+        placeholder="Endereço"
+        style={{ borderWidth: 1, marginBottom: 10, padding: 5 }}
       />
-      <input
-        type="date"
-        name="datanascimento"
-        value={formData.datanascimento}
-        onChange={handleChange}
+      <Text>Data de Nascimento:</Text>
+      <DatePicker 
+        selected={date} 
+        onChange={(data) => {
+          if (data) {
+            setDate(data);
+            indetificarTexto('datanascimento', data.toISOString().split('T')[0]);
+          } else {
+            setDate(new Date());
+          }
+        }}
       />
-      <input
-        type="password"
-        name="senha"
-        placeholder="Senha"
+      <Text>Senha:</Text>
+      <TextInput
         value={formData.senha}
-        onChange={handleChange}
+        onChangeText={(text) => handleChange('senha', text)}
+        placeholder="Senha"
+        secureTextEntry
+        style={{ borderWidth: 1, marginBottom: 10, padding: 5 }}
       />
-      <button type="submit">Registrar</button>
-    </form>
+      <Button title="Registrar" onPress={handleSubmit} />
+    </View>
   );
 }
