@@ -37,7 +37,7 @@ export default function Perfil (){
     const [catalogo, setCatalogo] = useState<Bolo[]>([]);
     const router = useRouter();
     
-const onPress = () => (router.push(`/Confeiteira/Adicionar_novo_bolo?id=${id}`));
+const onPress = () => (router.push(`./Confeiteira/Adicionar_novo_bolo?id=${id}`));
 
 const validarHorario = (horario: string) => {
     const regex = /^(0[0-9]|1[0-9]|2[0-3]):([0-5][0-9])$/

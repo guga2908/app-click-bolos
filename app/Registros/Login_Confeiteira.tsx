@@ -29,7 +29,7 @@ const indentificarlogin = async () => {
         const data = await confeiteira.json();
         await AsyncStorage.setItem("confeiteiraId", data.id);
         Alert.alert('Login realizado', `ID da confeiteira: ${data.id}`);
-         router.push(`./Confeiteira/perfilConfeiteiras/${data.id}`);
+         router.push(`../perfils/Confeiteira/${data.id}`);
     }catch (error) {
         console.error("Erro ao fazer login:", error);
         Alert.alert('Erro ao fazer login', 'Verifique suas credenciais e tente novamente');
@@ -52,7 +52,6 @@ return(
         secureTextEntry
         />
         <Button title={"Entrar"} onPress={indentificarlogin}/>
-        <Button title='Voltar' onPress={()=> router.push('./index')}/>
     </View>
 )
 }

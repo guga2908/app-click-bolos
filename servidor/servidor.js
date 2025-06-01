@@ -228,6 +228,36 @@ app.get('/confeiteira/:id/catalogo', async (req, res) => {
   }
 });
 
+app.get('/bolo/:id', async (req, res) => {
+  const { id } = req.params;
+  try {
+    const bolo = await prisma.bolo.findFirst({
+      where: { id: Number(id) },
+    });
+    if (!bolo) return res.status(404).json({ mensagem: 'Bolo não encontrado' });
+    res.json(bolo);
+  } catch (error) {
+    console.error('Erro ao buscar Bolo:', error);
+    res.status(500).json({ erro: 'Erro interno no servidor' });
+  }
+});
+
+app.get('/cliente/:id/endereco', async (req, res) => {
+  const { id } = req.params;
+  try {
+    const cliente = await prisma.cliente.findUnique({
+      where: { id: Number(id) },
+      include: { endereco: true },
+    });
+    if (!cliente || !cliente.endereco)
+      return res.status(404).json({ mensagem: 'Endereço não encontrado' });
+    res.json(cliente.endereco);
+  } catch (error) {
+    console.error('Erro ao buscar endereço:', error);
+    res.status(500).json({ erro: 'Erro interno ao buscar endereço' });
+  }
+});
+
 // Atualizar perfil da confeiteira (com upload de imagem)
 
 app.get('/cliente/:id', async (req, res) => {

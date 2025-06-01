@@ -29,7 +29,7 @@ export default function Login_Usuarios(){
             const data = await cliente.json();
             Alert.alert('Login realizado', `ID do cliente: ${data.id}`);
             await AsyncStorage.setItem('clienteId', String(data.id));
-            router.push('/Usuario/perfil');
+            router.push('../perfils/Usuario/perfil');
         } catch (error) {
             console.error("Erro ao fazer login:", error);
             Alert.alert('Erro ao fazer login', 'Verifique suas credenciais e tente novamente');
@@ -52,7 +52,6 @@ export default function Login_Usuarios(){
             secureTextEntry
             />
             <Button title='Entrar' onPress={indentificarlogin}/>
-            <Button title='Voltar' onPress={()=> router.push('./index')}/>
         </View>
         )
     }

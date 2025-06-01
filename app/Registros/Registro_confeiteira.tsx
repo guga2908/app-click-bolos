@@ -65,7 +65,7 @@ export default function registrarConfeiteira(){
             }
         const result = await response.json();
             alert('Confeiteira registrada com sucesso!');
-     router.push(`./Confeiteira/perfilConfeiteiras/${result.id}`);
+     router.push(`../Confeiteira/perfilConfeiteiras/${result.id}`);
         }catch (error) {
             alert(error || 'Erro ao registrar confeiteira.');
             console.error(error);
@@ -112,7 +112,6 @@ export default function registrarConfeiteira(){
             value={formData.senha}
             onChangeText={(text)=>{indetificarTexto('senha', text)}}/>
         <Button title='Registrar' onPress={RegistrarConf} disabled={!liberar}/>
-        <Button title='Voltar' onPress={()=>{router.push('/Registros/Registro') }}/>
         </View>
     )
 }

@@ -1,20 +1,21 @@
 import {Tabs} from "expo-router"
 import {Ionicons} from "@expo/vector-icons"
 
+
 export default function Layout() {
     return (
         <Tabs>
             <Tabs.Screen
                 name="index"
                 options={{
-                    title: "Inicio",
-                    tabBarIcon: ({color}) => <Ionicons name="home" size={24} color={color} />,
+                    title: "inicio",
+                    tabBarIcon: ({color}) => <Ionicons name="compass" size={24} color={color} />,
                 }}
             />
             <Tabs.Screen
-                name="perfil"
+                name="[id]"
                 options={{
-                    title: "Perfil Cliente",
+                    title: "Perfil",
                     tabBarLabel: "Perfil",
                     tabBarIcon: ({color}) => <Ionicons name="person-circle" size={24} color={color} />,
                 }}

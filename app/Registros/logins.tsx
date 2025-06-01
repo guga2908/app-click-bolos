@@ -6,11 +6,9 @@ export default function index(){
 /* talves nao precise mudar mais essa pagina */
     return(
         <View>
-            {/* <Button title="Confeiteira" onPress={()=>router.push('/Registros/Login_Confeiteira')}/>
+            <Button title="Confeiteira" onPress={()=>router.push('/Registros/Login_Confeiteira')}/>
             <Button title="Cliente" onPress={()=> router.push('/Registros/Login_Cliente')}/>
-            <Button title="Registrar" onPress={()=> router.push('/Registros/Registro')}/> */}
-            <Button title="Entrar" onPress={()=> router.push('../Registros/logins')}/>
-            
+            <Button title="Registrar" onPress={()=> router.push('/Registros/Registro')}/>
         </View>
     )
 }

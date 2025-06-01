@@ -62,7 +62,7 @@ export default function RegistroCliente() {
       }
       const result = await response.json();
       Alert.alert('Cliente registrado com sucesso!');
-      router.push(`/Usuario/perfil/${result.id}`);
+      router.push(`../Usuario/perfil/${result.id}`);
     } catch (error) {
       Alert.alert('Erro ao registrar cliente.');
       console.error(error);

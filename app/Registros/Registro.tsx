@@ -11,7 +11,6 @@ export default function(){
             <Text>Escolha uma dessas Opções:</Text>
             <Button title='Confeiteira' onPress={()=> router.push('/Registros/Registro_confeiteira')}/>
             <Button title='Cliente'onPress={()=> router.push('/Registros/Registro_cliente')}/>
-            <Button title='Voltar' onPress={()=> router.push('/Index')}/>
         </View>
     )
 }
