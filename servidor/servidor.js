@@ -158,38 +158,101 @@ app.post('/confeiteira/:id/bolo', upload.single('imagem'), async (req, res) => {
   }
 });
 
-app.post('/cliente/:clienteId/favoritos', async (req, res)=>{
-  const {clienteId} = req.params;
+app.post('/cliente/:clienteId/favoritos', async (req, res) => {
+  const { clienteId } = req.params;
   const { confeiteiraId } = req.body;
-  try{
+
+  console.log('Body recebido:', req.body);
+  console.log('Cliente ID:', clienteId);
+
+  try {
     // Verifica se o cliente existe
-    const cliente = await prisma.cliente.findFirst({
+    const cliente = await prisma.cliente.findUnique({
       where: { id: Number(clienteId) }
     });
     if (!cliente) {
       return res.status(404).json({ message: 'Cliente não encontrado.' });
     }
+
     // Verifica se a confeiteira existe
-    const confeiteira = await prisma.confeiteira.findFirst({
+    const confeiteira = await prisma.confeiteira.findUnique({
       where: { id: Number(confeiteiraId) }
     });
+
+    console.log("Dados da confeiteira:", confeiteira);
+
     if (!confeiteira) {
       return res.status(404).json({ message: 'Confeiteira não encontrada.' });
     }
+    console.log('Imagem da confeiteira:', confeiteira.imagem);
+if (!confeiteira.imagem || confeiteira.imagem.trim() === '') {
+  return res.status(400).json({ message: 'Confeiteira não possui imagem cadastrada.' });
+}
+
+
+    // imagem pode ser null se não existir ou estiver vazia
+    const imagem = confeiteira.imagem && confeiteira.imagem.trim() !== '' 
+      ? confeiteira.imagem 
+      : null;
+
     const favorito = await prisma.favoritos.create({
       data: {
-        clienteId: Number(clienteId),
-        confeiteiraId: Number(confeiteiraId),
         nomeloja: confeiteira.nomeloja,
-        imagem: confeiteira.imagem
+        imagem: imagem,
+        cliente: {
+          connect: { id: Number(clienteId) }
+        },
+        confeiteira: {
+          connect: { id: Number(confeiteiraId) }
+        },
       },
-});
+    });
+
     res.status(201).json(favorito);
-  }catch (error) {
+
+  } catch (error) {
+    if (error.code === 'P2002') {
+      return res.status(400).json({
+        message: "Favorito já existe.",
+        detalhe: "Essa confeiteira já foi favoritada por este cliente."
+      });
+    }
     console.error('Erro ao adicionar favorito:', error);
     res.status(500).json({ message: 'Erro interno do servidor.' });
   }
 });
+
+app.post('/avaliacoes', async(req, res) => {
+  const { confeiteiraId, clienteId, estrelas, comentario } = req.body;
+
+  if (!confeiteiraId || !clienteId || !estrelas) {
+    return res.status(400).json({ message: 'confeiteiraId, clienteId e estrelas são obrigatórios' });
+  }
+
+  if (Number(estrelas) < 1 || Number(estrelas) > 5) {
+    return res.status(400).json({ message: 'Estrelas deve ser um valor entre 1 e 5' });
+  }
+
+  try {
+    const novaAvaliacao = await prisma.avaliacao.create({
+      data: {
+        clienteId: Number(clienteId),
+        confeiteiraId: Number(confeiteiraId),
+        estrelas: Number(estrelas),
+        comentario: comentario || null,
+      }
+    });
+    res.status(201).json(novaAvaliacao);
+  } catch (error) {
+    if (error.code === 'P2002') {
+      return res.status(400).json({ message: 'Avaliação já existe para esse cliente e confeiteira' });
+    }
+    console.error('Erro ao criar avaliação:', error);
+    res.status(500).json({ message: 'Erro interno do servidor' });
+  }
+});
+
+
 //----------------------------Area GETS----------------------------
 app.get('/confeiteiras', async (req, res) => {
   try {
@@ -199,6 +262,24 @@ app.get('/confeiteiras', async (req, res) => {
     console.error('Erro ao buscar confeiteiras:',error);
   }
 })
+app.get('/confeiteira/:id/avaliacoes', async(req, res) => {
+  const { id } = req.params;
+  try {
+    const avaliacoes = await prisma.avaliacao.findMany({
+      where: { confeiteiraId: Number(id) },
+      include: {
+        cliente: {
+          select: { id: true, nome: true, email: true }
+        }
+      },
+      orderBy: { createdAt: "desc" } // Confirme se esse campo existe no schema
+    });
+    res.json(avaliacoes);
+  } catch (error) {
+    console.error('Erro ao buscar avaliacoes:', error);
+    res.status(500).json({ message: 'Erro interno do servidor' });
+  }
+});
 
 // Buscar perfil da confeiteira
 app.get('/confeiteira/:id', async (req, res) => {
@@ -247,7 +328,6 @@ app.get('/cliente/:id/endereco', async (req, res) => {
   try {
     const cliente = await prisma.cliente.findUnique({
       where: { id: Number(id) },
-      include: { endereco: true },
     });
     if (!cliente || !cliente.endereco)
       return res.status(404).json({ mensagem: 'Endereço não encontrado' });
@@ -303,14 +383,18 @@ app.put('/confeiteira/:id', upload.single('imagem'), async (req, res) => {
 app.delete('/cliente/:clienteId/favoritos/:confeiteiraId', async (req, res) => {
   const { clienteId, confeiteiraId } = req.params;
   try {
-    await prisma.favoritos.deleteMany({
+    await prisma.favoritos.delete({
       where: {
+        confeiteiraId_clienteId:{
         clienteId: Number(clienteId),
         confeiteiraId: Number(confeiteiraId),
-      },
+      }}
     });
     res.status(204).end();
   } catch (error) {
+     if (error.code === 'P2025') {
+      return res.status(404).json({ message: 'Favorito não encontrado.' });
+    }
     console.error('Erro ao remover favorito:', error);
     res.status(500).json({ message: 'Erro ao remover favorito.' });
   }

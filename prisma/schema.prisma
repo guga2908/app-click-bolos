@@ -19,6 +19,7 @@ model cliente {
   comentarios    comentarios[]
   favoritos      favoritos[]
   pedido         pedido[]
+  avaliacao      Avaliacao[]
 }
 
 model confeiteira {
@@ -38,7 +39,25 @@ model confeiteira {
   comentariosconfeiteira comentariosconfeiteira[]
   favoritos              favoritos[]
   pedidos                pedido[]
+  avaliacao              Avaliacao[]
 }
+
+model Avaliacao {
+  id           Int      @id @default(autoincrement())
+  clienteId    Int
+  confeiteiraId Int
+  estrelas     Int
+  comentario   String?   // opcional
+  createdAt    DateTime @default(now())
+  
+  cliente      cliente  @relation(fields: [clienteId], references: [id])
+  confeiteira  confeiteira @relation(fields: [confeiteiraId], references: [id])
+
+  @@unique([clienteId, confeiteiraId])  // evita duplicidade da avaliação
+
+  @@index([confeiteiraId])
+}
+
 
 model personalizacao {
   id          Int    @id @default(autoincrement())
@@ -89,7 +108,7 @@ model carrinho {
 
 model comentarios {
   id                     Int                      @id @default(autoincrement())
-  comentario             String
+  comentario             String?
   data                   DateTime
   clienteId              Int
   cliente                cliente                  @relation(fields: [clienteId], references: [id])
@@ -100,7 +119,7 @@ model comentarios {
 
 model favoritos {
   nomeloja      String
-  imagem        String
+  imagem        String?
   confeiteiraId Int
   clienteId     Int
   cliente       cliente     @relation(fields: [clienteId], references: [id])
