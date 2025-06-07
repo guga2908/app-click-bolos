@@ -15,6 +15,7 @@ type Cliente = {
 };
 
 export default function Perfil() {
+  const {id} = useLocalSearchParams();
   const router = useRouter();
   const [cliente, setCliente] = useState<Cliente | null>(null);
   const [loading, setLoading] = useState(true);
@@ -22,7 +23,8 @@ export default function Perfil() {
   useEffect(() => {
     const buscarCliente = async () => {
       try {
-        const userId = await AsyncStorage.getItem('userId');
+        const userId = await AsyncStorage.getItem('clienteId');
+        console.log('userId from AsyncStorage:', userId)
         if (!userId) {
           setLoading(false);
           return;
@@ -38,7 +40,7 @@ export default function Perfil() {
     };
 
     buscarCliente();
-  }, []);
+  }, [id]);
 
   if (loading) {
     return <Text>Carregando...</Text>;

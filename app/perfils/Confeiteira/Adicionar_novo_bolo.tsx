@@ -149,7 +149,7 @@ export default function AdicionarBolos() {
       )}
       {imagem && <Image source={{ uri: imagem }} style={{ width: 200, height: 200 }} />}
       <Button title="Adicionar Bolo ao Catálogo" onPress={adicionarBolo} />
-      <Button title="Cancelar" onPress={() => router.push(`./Confeiteira/perfilConfeiteiras/${id}`)} />
+      <Button title="Cancelar" onPress={() => router.push(`./perfilConfeiteiras/${id}`)} />
     </View>
   );
 }

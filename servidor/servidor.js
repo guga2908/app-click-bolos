@@ -1,6 +1,6 @@
 const express = require('express');
+const path = require('path');
 const multer = require('multer');
-const upload = multer({ dest: 'uploads/' });
 const cors = require('cors');
 const { PrismaClient } = require('@prisma/client');
 const bcrypt = require('bcryptjs');
@@ -20,9 +20,30 @@ app.use(cors());
 app.use(express.json({ limit: '20mb' }));
 
 // Servir arquivos estáticos da pasta uploads
-app.use('/uploads', express.static('uploads'));
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, 'uploads'); // ← PASTA CERTA
+  },
+  filename: (req, file, cb) => {
+    const uniqueName = Date.now() + '-' + Math.round(Math.random() * 1E9);
+    const ext = path.extname(file.originalname);
+    cb(null, uniqueName + ext);
+  }
+});
+
+const upload = multer({ storage }); // ← Apenas UMA vez
+
 //----------------------------- AREA DE POSTS ----------------------------
 // Rotas normais (JSON)
+
+app.post('/upload', upload.single('imagem'),(req, res) => {
+  if(!req.file){
+    return res.status(400).json({ error: 'Imagem não enviada' });
+  }
+  const imagemPath = `/uploads/${req.file.filename}`;
+  res.json({message:'Upload feito com sucesso', imagem: imagemPath})
+})
+
 app.post('/login', async (req, res) => {
   const { email, senha } = req.body;
   try {

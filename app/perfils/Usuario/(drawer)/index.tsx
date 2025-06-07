@@ -57,7 +57,7 @@ export default function TelaPrincipalUsuario() {
         <Text key={i} style={{ color: i <= avaliacao ? '#FFD700' : '#ccc', fontSize: 18 }}>
           ★
         </Text>
-      );
+      );  
     }
     return <View style={{ flexDirection: "row" }}>{estrelas}</View>;
   };

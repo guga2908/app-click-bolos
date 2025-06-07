@@ -45,11 +45,12 @@ export default function registrarConfeiteira(){
             return newFormData;
         })
     }
+    const formatarData = (data: Date) => data.toISOString().split('T')[0];
     const RegistrarConf = async () => {
         try{
             const Confdata: Confeiteira = {
                 ...formData,
-                datanascimento: data,
+                datanascimento: formatarData(data),
             }
             const response = await fetch('http://localhost:8081/registrar', {
                 method: 'POST',
@@ -65,7 +66,7 @@ export default function registrarConfeiteira(){
             }
         const result = await response.json();
             alert('Confeiteira registrada com sucesso!');
-     router.push(`../Confeiteira/perfilConfeiteiras/${result.id}`);
+     router.push(`../perfils/Confeiteira/perfilConfeiteiras/${result.id}`);
         }catch (error) {
             alert(error || 'Erro ao registrar confeiteira.');
             console.error(error);

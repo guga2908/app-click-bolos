@@ -37,7 +37,7 @@ export default function Perfil (){
     const [catalogo, setCatalogo] = useState<Bolo[]>([]);
     const router = useRouter();
     
-const onPress = () => (router.push(`./Confeiteira/Adicionar_novo_bolo?id=${id}`));
+const onPress = () => (router.push(`./Adicionar_novo_bolo?id=${id}`));
 
 const validarHorario = (horario: string) => {
     const regex = /^(0[0-9]|1[0-9]|2[0-3]):([0-5][0-9])$/
@@ -100,42 +100,50 @@ if (!result.canceled){
 };
 
     const salvarPerfil = async () => {
-     if(!validarHorario(horarioInicio)|| !validarHorario(horarioFim)){
-        alert("Horário inválido. O horário deve estar no formato HH:MM.");
-        return;
-     }
-     const formData = new FormData();
-        formData.append("nomeloja", nomeloja);
-        formData.append("horarioInicio", horarioInicio);
-        formData.append("horarioFim", horarioFim);
-        formData.append("descricao", descricao);
-    if(imagem && !imagem.startsWith('http')) {
-        const filename = imagem.split("/").pop();
-        const match = /\.(\w+)$/.exec(filename ?? '');
-        const type = match ? `image/${match[1]}` : `image`;
+  if (!validarHorario(horarioInicio) || !validarHorario(horarioFim)) {
+    alert("Horário inválido. O horário deve estar no formato HH:MM.");
+    return;
+  }
 
-        formData.append('imagem', {
-            uri: imagem,
-            name: filename ?? 'photo.jpg',
-            type: type
-        } as any); // 'as any' is needed for React Native FormData compatibility
+  const formData = new FormData();
+  formData.append("nomeloja", nomeloja);
+  formData.append("horarioInicio", horarioInicio);
+  formData.append("horarioFim", horarioFim);
+  formData.append("descricao", descricao);
+
+  if (Platform.OS === "web" && imagemArquivo) {
+    // No web envia o File diretamente
+    formData.append("imagem", imagemArquivo);
+  } else if (imagem && !imagem.startsWith("http")) {
+    // No mobile (React Native) usa uri, name e type
+    const filename = imagem.split("/").pop();
+    const match = /\.(\w+)$/.exec(filename ?? "");
+    const type = match ? `image/${match[1]}` : `image`;
+
+    formData.append("imagem", {
+      uri: imagem,
+      name: filename ?? "photo.jpg",
+      type: type,
+    } as any);
+  }
+
+  try {
+    const response = await fetch(`http://localhost:8081/confeiteira/${id}`, {
+      method: "PUT",
+      // NÃO colocar headers Content-Type, deixa o fetch definir
+      body: formData,
+    });
+    if (!response.ok) {
+      throw new Error("Erro ao salvar perfil");
     }
-    try{
-        const response = await fetch(`http://localhost:8081/confeiteira/${id}`, {
-            method: 'PUT',
-            // NÃO coloque headers: {'Content-Type': ...}
-            body: formData,
-        });
-        if(!response.ok){
-            throw new Error("Erro ao salvar perfil");
-        }
-        alert("Perfil salvo com sucesso!");
-        setModoEdicao(false);
-    }catch(error){
-        console.error("Erro ao salvar perfil:", error);
-        alert("Erro ao salvar perfil. Tente novamente.");
-    }
+    alert("Perfil salvo com sucesso!");
+    setModoEdicao(false);
+  } catch (error) {
+    console.error("Erro ao salvar perfil:", error);
+    alert("Erro ao salvar perfil. Tente novamente.");
+  }
 };
+
 
 useEffect(() => {
     const buscarCatalogo = async () => {
