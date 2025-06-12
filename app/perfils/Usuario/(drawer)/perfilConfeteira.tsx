@@ -1,7 +1,7 @@
 import { router, useLocalSearchParams, useRouter } from "expo-router";
 import React, { useEffect, useState } from "react";
-import { Alert, FlatList, Image, Pressable, Text, TextInput, View } from "react-native";
-import { styles } from '../../../../Estilos/estiloPerfilConfeiteira';
+import { Alert, FlatList, Image, ImageBackground, Pressable, Text, TextInput, View } from "react-native";
+/* import { styles } from '../../../../Estilos/estiloPerfilConfeiteira'; */
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Ionicons } from '@expo/vector-icons';
 
@@ -12,6 +12,7 @@ export default function PerfilConfeteira() {
   interface Confeiteira {
     imagem: string;
     nome: string;
+    nomeloja?: string;
     horarioInicio: string;
     horarioFim: string;
     descricao: string;
@@ -92,14 +93,15 @@ interface Avaliacao {
     const verificarFavorito = async () => {
       const clienteId = await AsyncStorage.getItem('clienteId');
       if (!clienteId) return;
-      try {
-        const response = await fetch(`http://localhost:8081/cliente/${clienteId}/favoritos`);
-        if (response.ok) {
-          const favoritos = await response.json();
-          setFavoritado(favoritos.some((fav: any) => String(fav.confeiteiraId) === String(id)));
-        }
-      } catch (error) {
-        setFavoritado(false);
+      const response = await fetch(`http://localhost:8081/cliente/${clienteId}/favoritos`);
+      if (response.ok) {
+        const favoritos = await response.json();
+        // Supondo que "id" é o id da confeiteira da tela
+        setFavoritado(
+          (favoritos as { confeiteiraId: number }[]).some(
+            (fav: { confeiteiraId: number }) => fav.confeiteiraId === Number(id)
+          )
+        );
       }
     };
     if (id) verificarFavorito();
@@ -133,6 +135,9 @@ interface Avaliacao {
         setFavoritado(false);
         Alert.alert("Removido", "Confeiteira removida dos favoritos!");
       }
+      // Atualiza o estado consultando o backend novamente
+      // (opcional, mas garante sincronismo)
+      // await verificarFavorito();
     } catch (error) {
       Alert.alert("Erro", "Ocorreu um problema ao alterar favoritos.");
       console.error(error);
@@ -173,18 +178,22 @@ interface Avaliacao {
 
   return (
     <View style={styles.container}>
-      <View style={styles.header}>
-        <Image source={{ uri: confeiteira.imagem }} style={styles.imagem} />
-        <Text style={styles.nome}>{confeiteira.nome}</Text>
-        <Pressable onPress={alternarFavorito}>
-          <Ionicons
-            name={favoritado ? "heart" : "heart-outline"}
-            size={32}
-            color={favoritado ? "red" : "gray"}
-            style={{ marginTop: 10 }}
-          />
-        </Pressable>
-      </View>
+      <ImageBackground
+        source={{ uri: `http://localhost:8081${confeiteira.imagem}` }}
+        style={styles.headerBackground}
+        imageStyle={{ opacity: 0.5 }} // Deixa a imagem mais suave, ajuste se quiser
+      >
+        <View style={{ alignItems: 'center', justifyContent: 'center', height: '100%' }}>
+          <Text style={styles.nome}>{confeiteira.nomeloja || confeiteira.nome}</Text>
+          <Pressable onPress={alternarFavorito} style={{ marginTop: 10 }}>
+            <Ionicons
+              name={favoritado ? "heart" : "heart-outline"}
+              size={32}
+              color={favoritado ? "red" : "gray"}
+            />
+          </Pressable>
+        </View>
+      </ImageBackground>
 
       <Text style={styles.horarios}>
         Horários: {confeiteira.horarioInicio} - {confeiteira.horarioFim}
@@ -201,7 +210,7 @@ interface Avaliacao {
           renderItem={({ item }) => (
             <Pressable onPress={() => router.push(`../pedidos?id=${item.id}`)}>
               <View style={styles.item}>
-                <Image source={{ uri: item.imagem }} style={styles.itemImagem} />
+                <Image source={{ uri: `http://localhost:8081${item.imagem}` }} style={styles.itemImagem} />
                 <Text style={styles.itemNome}>{item.nome}</Text>
                 <Text style={styles.itemDescricao}>{item.descricao}</Text>
                 <Text style={styles.itemPreco}>Preço: R$ {item.preco}</Text>
@@ -251,3 +260,81 @@ interface Avaliacao {
     </View>
   );
 }
+
+export const styles = {
+  container: {
+    flex: 1,
+    padding: 16,
+  },
+  header: {
+    alignItems: "center",
+    marginBottom: 16,
+  },
+  imagem: {
+    width: 120,
+    height: 120,
+    borderRadius: 60,
+    marginBottom: 8,
+  },
+  nome: {
+    fontSize: 24,
+    fontWeight: 'bold' as const,
+    marginBottom: 4,
+  },
+  horarios: {
+    fontSize: 16,
+    marginBottom: 8,
+  },
+  descricao: {
+    fontSize: 16,
+    marginBottom: 16,
+    lineHeight: 24,
+  },
+  catalogoTitulo: {
+    fontSize: 18,
+    fontWeight: 'bold' as const,
+    marginBottom: 8,
+    marginTop: 16,
+  },
+  item: {
+    backgroundColor: "white",
+    borderRadius: 8,
+    padding: 16,
+    marginBottom: 16,
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  itemImagem: {
+    width: '100%' as unknown as number, // Temporarily cast to number to avoid TS error, but this will not work at runtime
+    height: 120,
+    borderRadius: 8,
+    marginBottom: 8,
+  },
+  itemNome: {
+    fontSize: 18,
+    fontWeight: 'bold' as const,
+    marginBottom: 4,
+  },
+  itemDescricao: {
+    fontSize: 14,
+    color: "#666",
+    marginBottom: 8,
+  },
+  itemPreco: {
+    fontSize: 16,
+    color: "#FF7F50",
+    fontWeight: 'bold' as const,
+  },
+  headerBackground: {
+    width: '100%' as unknown as number, // Use Dimensions.get('window').width for a number value
+    height: 200,
+    justifyContent: 'center' as const,
+    alignItems: 'center' as const,
+  },
+};

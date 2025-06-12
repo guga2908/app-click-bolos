@@ -34,10 +34,12 @@ export default function Perfil (){
         imagem: string;
     }
 
-    const [catalogo, setCatalogo] = useState<Bolo[]>([]);
+    const [catalogo, setCatalogo] = useState<Bolo[]>([]); // ← array vazio
     const router = useRouter();
     
-const onPress = () => (router.push(`./Adicionar_novo_bolo?id=${id}`));
+  const onPress = () => {
+  router.push({ pathname: "/perfils/Confeiteira/Adicionar_novo_bolo", params: { id } });
+};
 
 const validarHorario = (horario: string) => {
     const regex = /^(0[0-9]|1[0-9]|2[0-3]):([0-5][0-9])$/
@@ -57,7 +59,7 @@ useEffect(() => {
             
             const catalogoResponse = await fetch(`http://localhost:8081/confeiteira/${id}/catalogo`);
             const catalogoData = await catalogoResponse.json();
-            setCatalogo(catalogoData || []);
+            setCatalogo(Array.isArray(catalogoData) ? catalogoData : []);
         }catch (error) {
             console.error("Erro ao buscar dados da confeiteira:", error);
         }
@@ -151,7 +153,7 @@ useEffect(() => {
 
             const catalogoResponse = await fetch(`http://localhost:8081/confeiteira/${id}/catalogo`);
             const data = await catalogoResponse.json();
-            setCatalogo(data);
+            setCatalogo(Array.isArray(data) ? data : []); // ← garante que é array
         }catch (error) {
             console.error("Erro ao buscar catalogo:", error);
         }
@@ -233,7 +235,7 @@ useEffect(() => {
   <ScrollView horizontal showsHorizontalScrollIndicator={false}>
     {catalogo.map((bolo, index) => (
       <View key={index}>
-        <Image source={{ uri: bolo.imagem }} style={{ width: 100, height: 100 }} />
+        <Image source={{ uri: `http://localhost:8081${bolo.imagem}` }} style={{ width: 100, height: 100 }} />
         <Text>Nome: {bolo.nome}</Text>
         <Text>Descrição: {bolo.descricao}</Text>
         <Text>Preço: {bolo.preco}</Text>

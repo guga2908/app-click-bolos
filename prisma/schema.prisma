@@ -18,7 +18,7 @@ model cliente {
   carrinho       carrinho[]
   comentarios    comentarios[]
   favoritos      favoritos[]
-  pedido         pedido[]
+  pedido         Pedido[]
   avaliacao      Avaliacao[]
 }
 
@@ -38,7 +38,7 @@ model confeiteira {
   bolo                   bolo[]
   comentariosconfeiteira comentariosconfeiteira[]
   favoritos              favoritos[]
-  pedidos                pedido[]
+  pedidos                Pedido[]
   avaliacao              Avaliacao[]
 }
 
@@ -69,11 +69,10 @@ model personalizacao {
   @@index([boloId], map: "personalizacao_boloId_fkey")
 }
 
-model pedido {
+model Pedido {
   id            Int           @id @default(autoincrement())
   NumeroPedido  Int
-  nomeloja      String
-  nomecliente   String
+  nomeConfeiteira     String
   endereco      String
   dataPedido    DateTime
   valorTotal    Float
@@ -81,6 +80,7 @@ model pedido {
   pagamento     String
   confeiteiraId Int
   clienteId     Int
+  boloId        Int?
   carrinho      carrinho[]
   itenspedido   itenspedido[]
   cliente       cliente       @relation(fields: [clienteId], references: [id])
@@ -100,7 +100,7 @@ model carrinho {
   clienteId Int
   pedidoId  Int
   cliente   cliente @relation(fields: [clienteId], references: [id])
-  pedido    pedido  @relation(fields: [pedidoId], references: [id])
+  pedido    Pedido  @relation(fields: [pedidoId], references: [id])
 
   @@index([clienteId], map: "carrinho_clienteId_fkey")
   @@index([pedidoId], map: "carrinho_pedidoId_fkey")
@@ -163,7 +163,7 @@ model itenspedido {
   pedidoId       Int
   boloId         Int
   bolo           bolo   @relation(fields: [boloId], references: [id], map: "ItensPedido_boloId_fkey")
-  pedido         pedido @relation(fields: [pedidoId], references: [id], map: "ItensPedido_pedidoId_fkey")
+  pedido         Pedido @relation(fields: [pedidoId], references: [id], map: "ItensPedido_pedidoId_fkey")
 
   @@id([pedidoId, boloId])
   @@index([boloId], map: "ItensPedido_boloId_fkey")

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Button, Image, Text, TextInput, View, Platform, Alert } from "react-native";
 import * as ImagePicker from "expo-image-picker";
 import { useLocalSearchParams, useRouter } from "expo-router";
@@ -14,7 +14,21 @@ export default function AdicionarBolos() {
   const [pesoBolo, setPesoBolo] = useState("");
   const [saborBolo, setSaborBolo] = useState("");
   const [imagemArquivo, setImagemArquivo] = useState<File | null>(null);
+  const [catalogo, setCatalogo] = useState<any[]>([]);
 
+  useEffect(() => {
+    const fetchCatalogo = async () => {
+      try {
+        const resposta = await fetch(`http://localhost:8081/confeiteira/${id}/bolo`);
+        const data = await resposta.json();
+        setCatalogo(Array.isArray(data) ? data : []);
+      } catch (error) {
+        console.error("Erro ao buscar catálogo:", error);
+      }
+    };
+
+    fetchCatalogo();
+  }, [id]);
 
   const selecionarImagem = async () => {
     if (Platform.OS === "web") {
@@ -149,7 +163,7 @@ export default function AdicionarBolos() {
       )}
       {imagem && <Image source={{ uri: imagem }} style={{ width: 200, height: 200 }} />}
       <Button title="Adicionar Bolo ao Catálogo" onPress={adicionarBolo} />
-      <Button title="Cancelar" onPress={() => router.push(`./perfilConfeiteiras/${id}`)} />
+      <Button title="Cancelar" onPress={() => router.push(`/perfils/Confeiteira/${id}`)} />
     </View>
   );
 }

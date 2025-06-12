@@ -1,21 +1,62 @@
+
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
-import{ Button, Text, View }from 'react-native'
+import { Button, Text, View, StyleSheet, TouchableOpacity } from 'react-native';
 
+export default function Registro() {
+  const router = useRouter();
 
-export default function(){
-    const router = useRouter();
+  return (
+    <View style={style.container}>
 
-    return(
-        <View>
-            <Text>Escolha uma dessas Opções:</Text>
-            <Button title='Confeiteira' onPress={()=> router.push('/Registros/Registro_confeiteira')}/>
-            <Button title='Cliente'onPress={()=> router.push('/Registros/Registro_cliente')}/>
-        </View>
-    )
+      <Text style={style.title}>🎂 Seja bem-vindo!</Text>
+
+      <Text style={style.subtitle}>Escolha uma das opções abaixo</Text>
+
+<TouchableOpacity style={style.button} onPress={() => router.push('/Registros/Registro_confeiteira')}>
+        <Text style={style.buttonText}>Confeiteira</Text>
+</TouchableOpacity>
+
+      <TouchableOpacity style={style.button} onPress={() => router.push('/Registros/Registro_cliente')}>
+        <Text style={style.buttonText}>Cliente</Text>
+      </TouchableOpacity>
+    </View>
+  );
 }
-export function Cadastros(){
-    const [formData, setFormData] = useState({
-        
-    })
-}
+
+//estilo do app
+
+const style = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#FFF0F5', // Rosa claro
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 20,
+  },
+  title: {
+    fontSize: 26,
+    fontWeight: 'bold',
+    color: '#D81B60', // Rosa escuro
+    marginBottom: 10,
+  },
+  subtitle: {
+    fontSize: 16,
+    color: '#555',
+    marginBottom: 30,
+  },
+  button: {
+    backgroundColor: '#D81B60',
+    paddingVertical: 12,
+    paddingHorizontal: 30,
+    borderRadius: 10,
+    marginVertical: 10,
+    width: '80%',
+    alignItems: 'center',
+  },
+  buttonText: {
+    color: 'white',
+    fontSize: 18,
+    fontWeight: '600',
+  },
+});

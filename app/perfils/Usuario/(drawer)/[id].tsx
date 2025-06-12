@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Image, Pressable, ScrollView, Text, View } from "react-native";
+import { Image, ImageBackground, Pressable, ScrollView, Text, View } from "react-native";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useLocalSearchParams, useRouter } from "expo-router";
 
@@ -61,23 +61,39 @@ export default function Perfil() {
             <ScrollView showsHorizontalScrollIndicator={false}>
               {cliente.favoritos?.length ? (
                 cliente.favoritos.map((fav, idx) => (
-              <Pressable key={fav.confeiteira.id ?? idx}
-              onPress={() => router.push({
-                pathname:"/perfils/Usuario/(drawer)/perfilConfeteira",
-                params:{id: String(fav.confeiteira.id)}
-              })
-            }
-              >
-                  <View key={fav.confeiteira.id ?? idx}>
-                    {fav.confeiteira.imagem && (
-                      <Image
-                        source={{ uri: `http://localhost:8081${fav.confeiteira.imagem}` }}
-                        style={{ width: 100, height: 100, borderRadius: 50 }}
-                      />
-                    )}
-                    <Text>{fav.confeiteira.nome}</Text>
-                  </View>
-              </Pressable>
+                  <Pressable
+                    key={fav.confeiteira.id ?? idx}
+                    onPress={() => router.push({
+                      pathname: "/perfils/Usuario/(drawer)/perfilConfeteira",
+                      params: { id: String(fav.confeiteira.id) }
+                    })}
+                  >
+                    <ImageBackground
+                      source={{ uri: `http://localhost:8081${fav.confeiteira.imagem}` }}
+                      style={{
+                        width: 120,
+                        height: 120,
+                        justifyContent: 'flex-end',
+                        alignItems: 'center',
+                        marginBottom: 8,
+                        borderRadius: 60,
+                        overflow: 'hidden'
+                      }}
+                      imageStyle={{ borderRadius: 60, opacity: 0.7 }}
+                    >
+                      <Text style={{
+                        color: '#fff',
+                        fontWeight: 'bold',
+                        fontSize: 16,
+                        textShadowColor: '#000',
+                        textShadowOffset: { width: 1, height: 1 },
+                        textShadowRadius: 4,
+                        marginBottom: 8
+                      }}>
+                        {fav.confeiteira.nome}
+                      </Text>
+                    </ImageBackground>
+                  </Pressable>
                 ))
               ) : (
                 <Text>Você ainda não tem favoritos.</Text>

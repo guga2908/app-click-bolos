@@ -20,6 +20,18 @@ export default function Layout() {
                     tabBarIcon: ({color}) => <Ionicons name="person-circle" size={24} color={color} />,
                 }}
             />
+            <Tabs.Screen
+                name="Adicionar_novo_bolo" // nome do arquivo que você quer ocultar
+                options={{
+                    href: null // ← isso oculta da tab bar!
+                }}
+            />
+             <Tabs.Screen
+                name="pedidosClie" // nome do arquivo que você quer ocultar
+                options={{
+                    href: null // ← isso oculta da tab bar!
+                }}
+            />
         </Tabs>
     );
 }

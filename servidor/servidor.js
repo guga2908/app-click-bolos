@@ -18,6 +18,7 @@ prisma.$connect()
 
 app.use(cors());
 app.use(express.json({ limit: '20mb' }));
+app.use('/uploads', express.static(path.join(__dirname,'..', 'uploads'))); // ← Servindo arquivos estáticos da pasta uploads
 
 // Servir arquivos estáticos da pasta uploads
 const storage = multer.diskStorage({
@@ -220,12 +221,8 @@ if (!confeiteira.imagem || confeiteira.imagem.trim() === '') {
       data: {
         nomeloja: confeiteira.nomeloja,
         imagem: imagem,
-        cliente: {
-          connect: { id: Number(clienteId) }
-        },
-        confeiteira: {
-          connect: { id: Number(confeiteiraId) }
-        },
+        clienteId: Number(clienteId),
+        confeiteiraId: Number(confeiteiraId)
       },
     });
 
@@ -273,8 +270,87 @@ app.post('/avaliacoes', async(req, res) => {
   }
 });
 
+app.post('/pedidos', async (req, res) => {
+  const {
+    NumeroPedido,
+    nomeConfeiteira,
+    endereco,
+    dataPedido,
+    valorTotal,
+    status,
+    pagamento,
+    confeiteiraId,
+    clienteId,
+    itens, // <-- Recebendo os itens do pedido
+  } = req.body;
+  if(!NumeroPedido || !nomeConfeiteira || !endereco || !dataPedido || !valorTotal || !status || !pagamento || !confeiteiraId || !clienteId || !itens) {
+    return res.status(400).json({ message: 'Preencha todos os campos obrigatórios.' });
+  }
+
+  try {
+    const novoPedido = await prisma.pedido.create({
+      data: {
+        NumeroPedido,
+        nomeConfeiteira,
+        endereco,
+        dataPedido,
+        valorTotal,
+        status,
+        pagamento,
+        confeiteiraId,
+        clienteId,
+        // NÃO coloque boloId aqui!
+        itenspedido: {
+          create: itens.map(item => ({
+            boloId: item.boloId,
+            quantidade: item.quantidade,
+            preco_unitario: item.preco_unitario
+          }))
+        }
+      },
+      include: {
+        itenspedido: true
+      }
+    });
+
+    res.status(201).json(novoPedido);
+  } catch (error) {
+    console.error("Erro ao salvar pedido:", error);
+    res.status(500).json({ erro: "Erro ao salvar pedido" });
+  }
+});
+
 
 //----------------------------Area GETS----------------------------
+
+app.get('/cliente/:clienteId/favoritos', async (req, res) => {
+  const { clienteId } = req.params;
+  const cliente = await prisma.cliente.findUnique({
+    where: { id: Number(clienteId) }
+  });
+  if (!cliente) {
+    return res.status(404).json({ message: 'Cliente não encontrado.' });
+  }
+  const favoritos = await prisma.favoritos.findMany({
+    where: { clienteId: Number(clienteId) }
+  });
+  res.json(favoritos);
+})
+
+app.get('/clientes/:clienteId/pedidos', async (req, res) => {
+  const {clienteId} = req.params;
+  try{
+    const pedidos = await prisma.pedido.findMany({
+      where: {clienteId: Number(clienteId)},
+      orderBy: {dataPedido: 'desc'}
+    });
+    res.json(pedidos);
+  }catch (error) {
+    console.error('Erro ao buscar pedidos:', error);
+    res.status(500).json({ message: 'Erro interno do servidor' });
+  }
+});
+
 app.get('/confeiteiras', async (req, res) => {
   try {
     const confeiteiras =await prisma.confeiteira.findMany();
@@ -307,15 +383,17 @@ app.get('/confeiteira/:id', async (req, res) => {
   const { id } = req.params;
   try {
     const confeiteira = await prisma.confeiteira.findUnique({
-      where: { id: Number(id) }
+      where: {
+        id: Number(id) // <-- Certifique-se de converter para número!
+      }
     });
     if (!confeiteira) {
-      return res.status(404).json({ message: 'Confeiteira não encontrada' });
+      return res.status(404).json({ message: 'Confeiteira não encontrada.' });
     }
     res.json(confeiteira);
   } catch (error) {
     console.error('Erro ao buscar confeiteira:', error);
-    res.status(500).json({ message: 'Erro interno do servidor' });
+    res.status(500).json({ message: 'Erro interno do servidor.' });
   }
 });
 
@@ -374,7 +452,38 @@ app.get('/cliente/:id', async (req, res) => {
     res.status(500).json({ message: 'Erro interno do servidor' });
   }
 });
+app.get('/confeiteira/:id/bolo', async (req, res) => {
+  const { id } = req.params;
+  try {
+    const bolos = await prisma.bolo.findMany({
+      where: { confeiteiraId: Number(id) }
+    });
+    res.json(bolos);
+  } catch (error) {
+    console.error("Erro ao buscar bolos:", error);
+    res.status(500).json({ message: "Erro ao buscar bolos" });
+  }
+});
 
+app.get('/confeiteira/:id/pedidos', async (req, res) => {
+  const { id } = req.params;
+  try {
+    const pedidos = await prisma.pedido.findMany({
+      where: { confeiteiraId: Number(id) },
+      include: {
+        cliente: true,
+        itenspedido: {
+          include: { bolo: true }
+        }
+      },
+      orderBy: { dataPedido: "desc" }
+    });
+    res.json(pedidos);
+  } catch (error) {
+    console.error('Erro ao buscar pedidos da confeiteira:', error);
+    res.status(500).json({ message: 'Erro interno do servidor' });
+  }
+});
 //----------------------------- Area PUTS ----------------------------
 app.put('/confeiteira/:id', upload.single('imagem'), async (req, res) => {
   console.log('Arquivo recebido:', req.file);
@@ -400,6 +509,21 @@ app.put('/confeiteira/:id', upload.single('imagem'), async (req, res) => {
   }
 });
 
+app.put('/pedidos/:id/status', async (req, res) => {
+  const { id } = req.params;
+  const { status } = req.body;
+  try {
+    await prisma.pedido.update({
+      where: { id: Number(id) },
+      data: { status }
+    });
+    res.json({ ok: true });
+  } catch (error) {
+    console.error('Erro ao atualizar status do pedido:', error);
+    res.status(500).json({ message: 'Erro interno do servidor' });
+  }
+});
+
 //-----------------------------DELETE--------------------
 app.delete('/cliente/:clienteId/favoritos/:confeiteiraId', async (req, res) => {
   const { clienteId, confeiteiraId } = req.params;
@@ -420,6 +544,23 @@ app.delete('/cliente/:clienteId/favoritos/:confeiteiraId', async (req, res) => {
     res.status(500).json({ message: 'Erro ao remover favorito.' });
   }
 });
+
+app.delete('/pedidos/:id', async (req, res) => {
+  const { id } = req.params;
+  try {
+    await prisma.pedido.delete({
+      where: { id: Number(id) }
+    });
+    res.status(204).end();
+  } catch (error) {
+    if (error.code === 'P2025') {
+      return res.status(404).json({ message: 'Pedido não encontrado.' });
+    }
+    console.error('Erro ao excluir pedido:', error);
+    res.status(500).json({ message: 'Erro ao excluir pedido.' });
+  }
+});
+//----------------------------- fim da pagina ----------------------------
 const PORT = process.env.PORT || 8081;
 app.listen(PORT, () => {
   console.log(`Servidor rodando em http://localhost:${PORT}`);

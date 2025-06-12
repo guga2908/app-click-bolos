@@ -1,21 +1,25 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import React, { useEffect, useState } from "react";
-import { Alert, Button, Text, TouchableOpacity, View, StyleSheet,} from "react-native";
+import { Alert, Button, Text, TouchableOpacity, View, StyleSheet } from "react-native";
 import DateTimePicker from "@react-native-community/datetimepicker";
 
 export default function Pedidos() {
   const { id } = useLocalSearchParams();
   const router = useRouter();
 
-  const [bolo, setBolo] = useState<{ nome: string; preco: number } | null>(
-    null
-  );
   const [quantidadeKg, setQuantidadeKg] = useState(1);
   const [formadepagamento, setFormaDePagamento] = useState("");
   const [endereco, setEndereco] = useState<string | null>(null);
   const [dataEntrega, setDataEntrega] = useState(new Date());
   const [valorTotal, setValorTotal] = useState(0);
+  const [bolo, setBolo] = useState<{
+    nome: string;
+    preco: number;
+    nomeConfeiteira: string;
+    confeiteiraId: number;
+    id: number;
+  } | null>(null);
 
   useEffect(() => {
     const fetchBolo = async () => {
@@ -41,7 +45,7 @@ export default function Pedidos() {
         const response = await fetch(`http://localhost:8081/cliente/${clienteId}/endereco`);
         const enderecoTexto = await response.text();
         setEndereco(enderecoTexto);
-      } catch (error) { 
+      } catch (error) {
         Alert.alert("Erro", "Erro ao buscar endereço do cliente");
       }
     };
@@ -62,6 +66,66 @@ export default function Pedidos() {
 
   const hoje = new Date();
   const entregaHoje = dataEntrega.toDateString() === hoje.toDateString();
+
+  const gerarNumeroPedido = () => {
+    const timestamp = Date.now();
+    const aleatorio = Math.floor(Math.random() * 1000);
+    return parseInt(`${timestamp}${aleatorio}`.slice(-9)); // Retorna como número (int), limitando o tamanho
+  };
+
+  const ConfirmarPedidos = async () => {
+    const NumeroPedido = gerarNumeroPedido();
+    const clienteId = await AsyncStorage.getItem("clienteId");
+
+    if (!formadepagamento) {
+      Alert.alert("Atenção", "Escolha a Forma de pagamento.");
+      return;
+    }
+
+    if (!clienteId || !bolo || !endereco) {
+      Alert.alert("Erro", "Dados incompletos para realizar o pedido.");
+      return;
+    }
+
+    try {
+      const response = await fetch("http://localhost:8081/pedidos", {
+        method: 'POST',
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          NumeroPedido,
+          nomeConfeiteira: bolo.nomeConfeiteira || "Confeiteira Padrão",
+          endereco,
+          dataPedido: new Date(),
+          valorTotal,
+          status: "Pendente",
+          pagamento: formadepagamento,
+          confeiteiraId: bolo.confeiteiraId,
+          clienteId: parseInt(clienteId),
+          itens: [
+            {
+              boloId: bolo.id,
+              quantidade: quantidadeKg,
+              preco_unitario: bolo.preco
+            }
+          ]
+        })
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        Alert.alert("Pedido Enviado", `Número do Pedido: ${data.NumeroPedido}`);
+        router.push("./(drawer)/index");
+      } else {
+        const errorData = await response.json();
+        Alert.alert("Erro", errorData.message || "Erro ao enviar o pedido.");
+      }
+    } catch (error) {
+      console.error(error);
+      Alert.alert("Erro", "Erro ao enviar o pedido.");
+    }
+  };
 
   return (
     <View style={styles.container}>
@@ -90,9 +154,7 @@ export default function Pedidos() {
 
           <Text style={styles.label}>Endereço de entrega:</Text>
           {endereco ? (
-            <Text style={styles.endereco}>
-             {endereco}
-            </Text>
+            <Text style={styles.endereco}>{endereco}</Text>
           ) : (
             <Text>Carregando endereço...</Text>
           )}
@@ -117,10 +179,7 @@ export default function Pedidos() {
           <View style={{ marginTop: 20 }}>
             <Button
               title="Confirmar Pedido"
-              onPress={() => {
-                Alert.alert("Pedido enviado", "Em breve a confeiteira entrará em contato.");
-                router.push("./(drawer)/index");
-              }}
+              onPress={ConfirmarPedidos}
             />
           </View>
 
