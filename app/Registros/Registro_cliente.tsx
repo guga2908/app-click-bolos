@@ -4,6 +4,16 @@ import { useRouter } from 'expo-router';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import  DatePicker from  "react-datepicker" ;
 
+interface Confeiteira {
+  nome: string;
+  nomeloja: string;
+  telefone: string;
+  endereco: string;
+  datanascimento: Date | string;
+  email: string;
+  senha: string;
+}
+
 export default function RegistroCliente() {
   const router = useRouter();
   const [formData, setFormData] = useState({
@@ -16,7 +26,7 @@ export default function RegistroCliente() {
   });
 
   const [showDatePicker, setShowDatePicker] = useState(false);
-  const [date, setDate] = useState<Date>(new Date());
+  const [data, setData] = useState(new Date());
 
   const handleChange = (name: string, value: string) => {
     setFormData((prev) => ({ ...prev, [name]: value }));
@@ -25,7 +35,7 @@ export default function RegistroCliente() {
   const handleDateChange = (event: any, selectedDate?: Date) => {
     setShowDatePicker(false);
     if (selectedDate) {
-      setDate(selectedDate);
+      setData(selectedDate);
       // Salva no formato YYYY-MM-DD
       const iso = selectedDate.toISOString().split('T')[0];
       handleChange('datanascimento', iso);
@@ -112,21 +122,22 @@ export default function RegistroCliente() {
       />
 
       <Text style={styles.label}>Data de Nascimento:</Text>
-      <Pressable onPress={() => setShowDatePicker(true)} style={styles.dateInput}>
-        <Text style={formData.datanascimento ? styles.dateText : styles.placeholderText}>
-          {formData.datanascimento || 'Selecionar data'}
-        </Text>
-      </Pressable>
-
-      {showDatePicker && (
-        <DateTimePicker
-          value={date}
-          mode="date"
-          display={Platform.OS === 'ios' ? 'spinner' : 'default'}
-          onChange={handleDateChange}
-          maximumDate={new Date()}
-        />
-      )}
+            <View style={styles.datePickerContainer}>
+              <DatePicker
+                selected={data}
+                onChange={(date) => {
+                  if (date) {
+                    setData(date);
+                    indetificarTexto('datanascimento', date.toISOString());
+                  } else {
+                    setData(new Date());
+                  }
+                }}
+                dateFormat="dd/MM/yyyy"
+                placeholderText="Selecione a data"
+                className="datepicker" 
+              />
+            </View>
 
       <Text style={styles.label}>Senha:</Text>
       <TextInput
@@ -173,6 +184,14 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     padding: 12,
     fontSize: 16,
+    marginBottom: 15,
+  },
+datePickerContainer: {
+    backgroundColor: '#FFF',
+    borderWidth: 1,
+    borderColor: '#CCC',
+    borderRadius: 8,
+    padding: 10,
     marginBottom: 15,
   },
   dateInput: {

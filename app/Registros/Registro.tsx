@@ -8,9 +8,9 @@ export default function Registro() {
   return (
     <View style={style.container}>
 
-      <Text style={style.title}>🎂 Seja bem-vindo!</Text>
+      <Text style={style.title}>🤎💗Seja bem-vindo! novo cliente e nova confeiteira🤎💗</Text>
 
-      <Text style={style.subtitle}>Escolha uma das opções abaixo</Text>
+      <Text style={style.subtitle}>Escolha uma das opções abaixo para fazer parte da nossa Historia</Text>
 
 <TouchableOpacity style={style.button} onPress={() => router.push('/Registros/Registro_confeiteira')}>
         <Text style={style.buttonText}>Confeiteira</Text>
@@ -38,11 +38,13 @@ const style = StyleSheet.create({
     fontWeight: 'bold',
     color: '#D81B60', // Rosa escuro
     marginBottom: 10,
+    textAlign:'center',
   },
   subtitle: {
     fontSize: 16,
     color: '#555',
     marginBottom: 30,
+    textAlign:'center',
   },
   button: {
     backgroundColor: '#D81B60',

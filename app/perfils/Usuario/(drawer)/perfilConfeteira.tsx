@@ -1,9 +1,18 @@
-import { router, useLocalSearchParams, useRouter } from "expo-router";
+import { useLocalSearchParams, useRouter } from "expo-router";
 import React, { useEffect, useState } from "react";
-import { Alert, FlatList, Image, Pressable, Text, TextInput, View } from "react-native";
-import { styles } from '../../../../Estilos/estiloPerfilConfeiteira';
+import {
+  Alert,
+  FlatList,
+  Image,
+  Pressable,
+  Text,
+  TextInput,
+  View,
+  StyleSheet,
+  Dimensions,
+} from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { Ionicons } from '@expo/vector-icons';
+import { Ionicons } from "@expo/vector-icons";
 
 export default function PerfilConfeteira() {
   const router = useRouter();
@@ -16,15 +25,16 @@ export default function PerfilConfeteira() {
     horarioFim: string;
     descricao: string;
   }
-interface Avaliacao {
-  id: number;
-  estrelas: number;
-  comentario: string | null;
-  data: string;
-  cliente: {
-    nome: string;
-  };
-}
+
+  interface Avaliacao {
+    id: number;
+    estrelas: number;
+    comentario: string | null;
+    data: string;
+    cliente: {
+      nome: string;
+    };
+  }
 
   interface Bolo {
     id: number;
@@ -38,16 +48,12 @@ interface Avaliacao {
   const [catalogo, setCatalogo] = useState<Bolo[]>([]);
   const [favoritado, setFavoritado] = useState(false);
   const [avaliacoes, setAvaliacoes] = useState<Avaliacao[]>([]);
-
-
-
-  const [comentario, setComentario] = useState('');
+  const [comentario, setComentario] = useState("");
   const [estrelas, setEstrelas] = useState(0);
 
   useEffect(() => {
     if (!id) return;
-
-    const IP = 'localhost';
+    const IP = "localhost";
 
     const buscarConfeiteira = async () => {
       try {
@@ -90,7 +96,7 @@ interface Avaliacao {
 
   useEffect(() => {
     const verificarFavorito = async () => {
-      const clienteId = await AsyncStorage.getItem('clienteId');
+      const clienteId = await AsyncStorage.getItem("clienteId");
       if (!clienteId) return;
       try {
         const response = await fetch(`http://localhost:8081/cliente/${clienteId}/favoritos`);
@@ -105,12 +111,10 @@ interface Avaliacao {
     if (id) verificarFavorito();
   }, [id]);
 
-  if (!confeiteira) {
-    return <Text>Carregando...</Text>;
-  }
+  if (!confeiteira) return <Text>Carregando...</Text>;
 
   const alternarFavorito = async () => {
-    const clienteId = await AsyncStorage.getItem('clienteId');
+    const clienteId = await AsyncStorage.getItem("clienteId");
     if (!clienteId) {
       Alert.alert("Erro", "Você precisa estar logado para favoritar uma confeiteira");
       return;
@@ -118,8 +122,8 @@ interface Avaliacao {
     try {
       if (!favoritado) {
         const response = await fetch(`http://localhost:8081/cliente/${clienteId}/favoritos`, {
-          method: 'POST',
-          headers: { 'content-type': 'application/json' },
+          method: "POST",
+          headers: { "content-type": "application/json" },
           body: JSON.stringify({ confeiteiraId: Number(id) }),
         });
         if (!response.ok) throw new Error("Erro ao favoritar confeiteira");
@@ -127,7 +131,7 @@ interface Avaliacao {
         Alert.alert("Sucesso", "Confeiteira adicionada aos favoritos");
       } else {
         const response = await fetch(`http://localhost:8081/cliente/${clienteId}/favoritos/${id}`, {
-          method: 'DELETE',
+          method: "DELETE",
         });
         if (!response.ok && response.status !== 204) throw new Error("Erro ao remover dos favoritos");
         setFavoritado(false);
@@ -140,18 +144,18 @@ interface Avaliacao {
   };
 
   const enviarAvaliacao = async () => {
-    const clienteId = await AsyncStorage.getItem('clienteId');
+    const clienteId = await AsyncStorage.getItem("clienteId");
     if (!clienteId) return Alert.alert("Erro", "Você precisa estar logado");
 
     try {
-      const response = await fetch('http://localhost:8081/avaliacoes', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      const response = await fetch("http://localhost:8081/avaliacoes", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           clienteId: Number(clienteId),
           confeiteiraId: Number(id),
           estrelas,
-          comentario
+          comentario,
         }),
       });
       if (!response.ok) {
@@ -159,16 +163,16 @@ interface Avaliacao {
         throw new Error(data.message || "Erro ao enviar avaliação");
       }
       Alert.alert("Sucesso", "Avaliação enviada!");
-      setComentario('');
+      setComentario("");
       setEstrelas(0);
     } catch (error) {
-  console.error("Erro ao enviar avaliação:", error);
-  if (error instanceof Error) {
-    Alert.alert("Erro", error.message);
-  } else {
-    Alert.alert("Erro", "Erro ao enviar avaliação");
-  }
-}
+      console.error("Erro ao enviar avaliação:", error);
+      if (error instanceof Error) {
+        Alert.alert("Erro", error.message);
+      } else {
+        Alert.alert("Erro", "Erro ao enviar avaliação");
+      }
+    }
   };
 
   return (
@@ -180,7 +184,7 @@ interface Avaliacao {
           <Ionicons
             name={favoritado ? "heart" : "heart-outline"}
             size={32}
-            color={favoritado ? "red" : "gray"}
+            color={favoritado ? "#FF4081" : "gray"}
             style={{ marginTop: 10 }}
           />
         </Pressable>
@@ -193,7 +197,7 @@ interface Avaliacao {
 
       <Text style={styles.catalogoTitulo}>Catálogo:</Text>
       {catalogo.length === 0 ? (
-        <Text>Nenhum bolo cadastrado no catálogo.</Text>
+        <Text style={styles.semConteudo}>Nenhum bolo cadastrado no catálogo.</Text>
       ) : (
         <FlatList
           data={catalogo}
@@ -213,28 +217,28 @@ interface Avaliacao {
 
       <Text style={styles.catalogoTitulo}>Avaliações:</Text>
       {avaliacoes.length === 0 ? (
-        <Text>Ainda não há avaliações.</Text>
+        <Text style={styles.semConteudo}>Ainda não há avaliações.</Text>
       ) : (
         <FlatList
           data={avaliacoes}
           keyExtractor={(item) => item.id.toString()}
           renderItem={({ item }) => (
-            <View style={{ marginVertical: 8, borderBottomWidth: 1, borderColor: '#ccc', paddingBottom: 8 }}>
-              <Text style={{ fontWeight: 'bold' }}>{item.cliente.nome}</Text>
+            <View style={styles.avaliacaoItem}>
+              <Text style={styles.avaliador}>{item.cliente.nome}</Text>
               <Text>⭐ {item.estrelas} estrelas</Text>
               {item.comentario ? <Text>{item.comentario}</Text> : null}
-              <Text style={{ fontSize: 12, color: 'gray' }}>{new Date(item.data).toLocaleDateString()}</Text>
+              <Text style={styles.dataComentario}>{new Date(item.data).toLocaleDateString()}</Text>
             </View>
           )}
         />
       )}
 
-      <View style={{ marginVertical: 16 }}>
+      <View style={styles.avaliacaoBox}>
         <Text>Deixe sua avaliação:</Text>
-        <View style={{ flexDirection: 'row', marginVertical: 8 }}>
+        <View style={styles.estrelas}>
           {[1, 2, 3, 4, 5].map((n) => (
             <Pressable key={n} onPress={() => setEstrelas(n)}>
-              <Ionicons name={n <= estrelas ? "star" : "star-outline"} size={24} color="orange" />
+              <Ionicons name={n <= estrelas ? "star" : "star-outline"} size={24} color="#FFB300" />
             </Pressable>
           ))}
         </View>
@@ -242,12 +246,134 @@ interface Avaliacao {
           placeholder="Escreva um comentário (opcional)"
           value={comentario}
           onChangeText={setComentario}
-          style={{ borderWidth: 1, borderColor: '#ccc', padding: 8, borderRadius: 4 }}
+          style={styles.inputComentario}
         />
-        <Pressable onPress={enviarAvaliacao} style={{ backgroundColor: '#FF7F50', padding: 10, marginTop: 10 }}>
-          <Text style={{ color: 'white', textAlign: 'center' }}>Enviar Avaliação</Text>
+        <Pressable onPress={enviarAvaliacao} style={styles.botaoEnviar}>
+          <Text style={styles.botaoEnviarTexto}>Enviar Avaliação</Text>
         </Pressable>
       </View>
     </View>
   );
 }
+
+const { width } = Dimensions.get("window");
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: "#FFF0F5", // Rosa bem claro
+    padding: 20,
+  },
+  header: {
+    alignItems: "center",
+    marginBottom: 20,
+  },
+  imagem: {
+    width: 120,
+    height: 120,
+    borderRadius: 60,
+    borderWidth: 3,
+    borderColor: "#FFB6C1",
+  },
+  nome: {
+    fontSize: 26,
+    fontWeight: "bold",
+    marginTop: 10,
+    color: "#D81B60",
+  },
+  horarios: {
+    fontSize: 14,
+    color: "#6D4C41",
+    textAlign: "center",
+  },
+  descricao: {
+    fontSize: 16,
+    marginTop: 10,
+    marginBottom: 20,
+    textAlign: "center",
+    color: "#5D4037",
+  },
+  catalogoTitulo: {
+    fontSize: 20,
+    fontWeight: "600",
+    marginVertical: 10,
+    color: "#C2185B",
+  },
+  item: {
+    backgroundColor: "#FFF",
+    borderRadius: 14,
+    padding: 10,
+    marginBottom: 12,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 2,
+    elevation: 2,
+  },
+  itemImagem: {
+    width: "100%",
+    height: 180,
+    borderRadius: 10,
+  },
+  itemNome: {
+    fontSize: 18,
+    fontWeight: "bold",
+    marginTop: 8,
+    color: "#8E24AA",
+  },
+  itemDescricao: {
+    fontSize: 14,
+    color: "#616161",
+  },
+  itemPreco: {
+    fontSize: 16,
+    color: "#D81B60",
+    marginTop: 4,
+  },
+  semConteudo: {
+    fontStyle: "italic",
+    color: "#999",
+    marginBottom: 10,
+  },
+  avaliacaoItem: {
+    marginVertical: 8,
+    borderBottomWidth: 1,
+    borderColor: "#eee",
+    paddingBottom: 8,
+  },
+  avaliador: {
+    fontWeight: "bold",
+    color: "#5D4037",
+  },
+  dataComentario: {
+    fontSize: 12,
+    color: "gray",
+  },
+  avaliacaoBox: {
+    marginTop: 20,
+    paddingTop: 10,
+    borderTopWidth: 1,
+    borderTopColor: "#ddd",
+  },
+  estrelas: {
+    flexDirection: "row",
+    marginVertical: 8,
+  },
+  inputComentario: {
+    borderWidth: 1,
+    borderColor: "#ccc",
+    padding: 8,
+    borderRadius: 6,
+  },
+  botaoEnviar: {
+    backgroundColor: "#EC407A",
+    padding: 10,
+    borderRadius: 8,
+    marginTop: 10,
+  },
+  botaoEnviarTexto: {
+    color: "#fff",
+    textAlign: "center",
+    fontWeight: "bold",
+  },
+});
