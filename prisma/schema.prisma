@@ -20,6 +20,7 @@ model cliente {
   favoritos      favoritos[]
   pedido         Pedido[]
   avaliacao      Avaliacao[]
+  pedidosPersonalizados PedidoPersonalizado[]
 }
 
 model confeiteira {
@@ -39,6 +40,7 @@ model confeiteira {
   comentariosconfeiteira comentariosconfeiteira[]
   favoritos              favoritos[]
   pedidos                Pedido[]
+  pedidosPersonalizados  PedidoPersonalizado[]
   avaliacao              Avaliacao[]
 }
 
@@ -59,14 +61,26 @@ model Avaliacao {
 }
 
 
-model personalizacao {
-  id          Int    @id @default(autoincrement())
-  nome        String
-  valor_opcao Float
-  boloId      Int
-  bolo        bolo   @relation(fields: [boloId], references: [id])
+model PedidoPersonalizado {
+  id              Int        @id @default(autoincrement())
+  clienteId       Int
+  confeiteiraId   Int
+  massa           String
+  recheio         String
+  cobertura       String
+  camadas         Int
+  topo            Boolean
+  observacoes     String?
+  dataEntrega     DateTime
+  horaEntrega     String
+  status          String     @default("Pendente")
+  criadoEm        DateTime   @default(now())
 
-  @@index([boloId], map: "personalizacao_boloId_fkey")
+  cliente         cliente      @relation(fields: [clienteId], references: [id])
+  confeiteira     confeiteira  @relation(fields: [confeiteiraId], references: [id])
+
+  @@index([clienteId])
+  @@index([confeiteiraId])
 }
 
 model Pedido {
@@ -141,8 +155,6 @@ model bolo {
   peso           Float
   confeiteira    confeiteira      @relation(fields: [confeiteiraId], references: [id], map: "Bolo_confeiteiraId_fkey")
   itenspedido    itenspedido[]
-  personalizacao personalizacao[]
-
   @@index([confeiteiraId], map: "Bolo_confeiteiraId_fkey")
 }
 
@@ -163,7 +175,7 @@ model itenspedido {
   pedidoId       Int
   boloId         Int
   bolo           bolo   @relation(fields: [boloId], references: [id], map: "ItensPedido_boloId_fkey")
-  pedido         Pedido @relation(fields: [pedidoId], references: [id], map: "ItensPedido_pedidoId_fkey")
+  pedido         Pedido @relation(fields: [pedidoId], references: [id], onDelete: Cascade ,map: "ItensPedido_pedidoId_fkey")
 
   @@id([pedidoId, boloId])
   @@index([boloId], map: "ItensPedido_boloId_fkey")

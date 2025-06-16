@@ -122,6 +122,69 @@ app.post('/registrar-cliente', async (req, res) => {
   }
 });
 
+app.post('/pedidos-personalizados', async (req, res) => {
+  console.log("REQ.BODY:", req.body);
+  const {
+    clienteId,
+    confeiteiraId,
+    massa,
+    recheio,
+    cobertura,
+    camadas,
+    topo,
+    observacoes,
+    dataEntrega,
+    horaEntrega
+  } = req.body;
+
+  console.log({
+    clienteId,
+    confeiteiraId,
+    massa,
+    recheio,
+    cobertura,
+    camadas,
+    topo,
+    observacoes,
+    dataEntrega,
+    horaEntrega
+  });
+
+  if (
+    !clienteId ||
+    !confeiteiraId ||
+    !massa ||
+    !recheio ||
+    !cobertura ||
+    camadas === undefined || camadas === null ||
+    topo === undefined || topo === null ||
+    !dataEntrega ||
+    !horaEntrega
+  ) {
+    return res.status(400).json({ message: 'Preencha todos os campos obrigatórios.' });
+  }
+  try {
+    const pedido = await prisma.pedidoPersonalizado.create({
+      data: {
+        clienteId: Number(clienteId),
+        confeiteiraId: Number(confeiteiraId),
+        massa,
+        recheio,
+        cobertura,
+        camadas: Number(camadas),
+        topo: Boolean(topo),
+        observacoes,
+        dataEntrega: new Date(dataEntrega),
+        horaEntrega,
+      }
+    });
+    res.status(201).json(pedido);
+  } catch (error) {
+    console.error('Erro ao criar pedido personalizado:', error);
+    res.status(500).json({ message: 'Erro interno do servidor.' });
+  }
+});
+
 app.post('/registrar', async (req, res) => {
   const { nome, nomeloja, email, telefone, endereco, datanascimento, senha, descricao } = req.body;
   if (!nome || !nomeloja || !email || !telefone || !endereco || !datanascimento || !senha) {
@@ -323,6 +386,34 @@ app.post('/pedidos', async (req, res) => {
 
 //----------------------------Area GETS----------------------------
 
+app.get('/confeiteira/:id/pedidos-personalizados', async (req, res) => {
+  const { id } = req.params;
+  try{
+    const pedidos =  await prisma.pedidoPersonalizado.findMany({
+      where:{confeiteiraId: Number(id)},
+      include: {cliente: true},
+    });
+    res.json(pedidos);
+  }catch(error) {
+    console.error('Erro ao buscar pedidos personalizados:', error);
+    res.status(500).json({ message: 'Erro interno do servidor' });
+  }
+});
+
+app.get('/cliente/:id/pedidos-personalizados', async (req, res) => {
+  const { id } = req.params;
+  try {
+    const pedidos = await prisma.pedidoPersonalizado.findMany({
+      where: { clienteId: Number(id) },
+      include: { confeiteira: true },
+    });
+    res.json(pedidos);
+  } catch (error) {
+    console.error('Erro ao buscar pedidos personalizados:', error);
+    res.status(500).json({ message: 'Erro interno do servidor' });
+  }
+});
+
 app.get('/cliente/:clienteId/favoritos', async (req, res) => {
   const { clienteId } = req.params;
   const cliente = await prisma.cliente.findUnique({
@@ -342,7 +433,10 @@ app.get('/clientes/:clienteId/pedidos', async (req, res) => {
   try{
     const pedidos = await prisma.pedido.findMany({
       where: {clienteId: Number(clienteId)},
-      orderBy: {dataPedido: 'desc'}
+      orderBy: {dataPedido: 'desc'},
+      include:{
+        confeiteira: true,
+      }
     });
     res.json(pedidos);
   }catch (error) {

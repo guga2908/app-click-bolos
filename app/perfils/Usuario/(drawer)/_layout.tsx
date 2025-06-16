@@ -25,6 +25,18 @@ export default function Layout() {
             title:"Meus Pedidos"
         }}
         />
+            <Drawer.Screen
+    name="perfilConfeteira"
+    options={{
+        drawerItemStyle: { display: "none" }
+    }}
+    />
+          <Drawer.Screen
+    name="pedidosPersonalizados"
+    options={{
+        drawerItemStyle: { display: "none" }
+    }}
+    />
     </Drawer>
     );
 }

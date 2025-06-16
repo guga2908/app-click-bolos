@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, FlatList, StyleSheet, TouchableOpacity } from "react-native";
+import { View, Text, FlatList, StyleSheet, TouchableOpacity, TextInput } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useRouter } from "expo-router";
 
@@ -10,10 +10,13 @@ type Pedido = {
   cliente?: {
     nome?: string;
   };
+  personalizado?: boolean; // Supondo que exista esse campo
 };
 
 export default function PedidosClie() {
   const [pedidos, setPedidos] = useState<Pedido[]>([]);
+  const [busca, setBusca] = useState("");
+  const [filtroPersonalizado, setFiltroPersonalizado] = useState<null | boolean>(null);
   const router = useRouter();
 
   useEffect(() => {
@@ -43,11 +46,57 @@ export default function PedidosClie() {
     }
   }
 
+  // Filtro dos pedidos
+  const pedidosFiltrados = pedidos.filter(item => {
+    const buscaNumero = busca.trim() === "" || (item.NumeroPedido?.toString().includes(busca.trim()) ?? false);
+    const buscaPersonalizado =
+      filtroPersonalizado === null ||
+      (!!item.personalizado === filtroPersonalizado);
+    return buscaNumero && buscaPersonalizado;
+  });
+
   return (
     <View style={styles.container}>
       <Text style={styles.titulo}>Pedidos Recebidos</Text>
+      {/* Campo de busca */}
+      <TextInput
+        style={styles.input}
+        placeholder="Buscar pelo número do pedido..."
+        value={busca}
+        onChangeText={setBusca}
+        keyboardType="numeric"
+      />
+      <View style={{ flexDirection: "row", marginBottom: 10 }}>
+        <TouchableOpacity
+          style={[
+            styles.filtroBtn,
+            filtroPersonalizado === null && styles.filtroBtnAtivo,
+          ]}
+          onPress={() => setFiltroPersonalizado(null)}
+        >
+          <Text>Todos</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={[
+            styles.filtroBtn,
+            filtroPersonalizado === true && styles.filtroBtnAtivo,
+          ]}
+          onPress={() => setFiltroPersonalizado(true)}
+        >
+          <Text>Personalizados</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={[
+            styles.filtroBtn,
+            filtroPersonalizado === false && styles.filtroBtnAtivo,
+          ]}
+          onPress={() => setFiltroPersonalizado(false)}
+        >
+          <Text>Não personalizados</Text>
+        </TouchableOpacity>
+      </View>
       <FlatList
-        data={pedidos}
+        data={pedidosFiltrados}
         keyExtractor={item => item.id?.toString() ?? Math.random().toString()}
         renderItem={({ item }) => (
           <TouchableOpacity
@@ -63,6 +112,9 @@ export default function PedidosClie() {
             <Text style={styles.label}>
               Status: <Text style={[styles.valor, getStatusStyle(item.status)]}>{item.status || "Desconhecido"}</Text>
             </Text>
+            <Text style={styles.label}>
+              {item.personalizado ? "Personalizado" : "Não personalizado"}
+            </Text>
             <Text style={styles.link}>Ver detalhes</Text>
           </TouchableOpacity>
         )}
@@ -75,6 +127,7 @@ export default function PedidosClie() {
 const styles = StyleSheet.create({
   container: { flex: 1, padding: 16, backgroundColor: "#fff" },
   titulo: { fontSize: 22, fontWeight: "bold", marginBottom: 16 },
+  input: { borderWidth: 1, borderColor: "#ccc", borderRadius: 8, padding: 8, marginBottom: 10 },
   pedidoBox: { backgroundColor: "#f9f9f9", padding: 12, borderRadius: 8, marginBottom: 12 },
   label: { fontWeight: "bold" },
   valor: { fontWeight: "normal" },
@@ -82,5 +135,7 @@ const styles = StyleSheet.create({
   pendente: { color: "#FFA500" },
   producao: { color: "#007bff" },
   entregue: { color: "#28a745" },
-  cancelado: { color: "#dc3545" }
+  cancelado: { color: "#dc3545" },
+  filtroBtn: { padding: 8, borderWidth: 1, borderColor: "#ccc", borderRadius: 8, marginRight: 8 },
+  filtroBtnAtivo: { backgroundColor: "#e0e0e0" },
 });

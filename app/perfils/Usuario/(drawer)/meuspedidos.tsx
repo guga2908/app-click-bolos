@@ -11,6 +11,9 @@ export default function MeusPedidos(){
         dataPedido: string;
         valorTotal: number;
         status: string;
+        confeiteira?: {
+            nomeloja?: string;
+        };
         // add other properties as needed
     }
 
@@ -84,7 +87,9 @@ export default function MeusPedidos(){
 
     return(
         <View>
-            <View><Text>Meus Pedidos</Text></View>
+            <View style={{ alignItems: "center", marginVertical: 10 }}>
+  <Text style={styles.title}>Meus Pedidos</Text>
+</View>
             <View>
                 <FlatList
                 data = {pedidos}
@@ -92,9 +97,9 @@ export default function MeusPedidos(){
                 renderItem={({item})=>(
                      <Pressable style={styles.pedidoItem}>
             <Text style={styles.label}>Pedido Nº: <Text style={styles.value}>{item.NumeroPedido}</Text></Text>
-            <Text style={styles.label}>Confeiteira: <Text style={styles.value}>{item.nomeConfeiteira}</Text></Text>
-            <Text style={styles.label}>Data: <Text style={styles.value}>{new Date(item.dataPedido).toLocaleDateString()}</Text></Text>
-            <Text style={styles.label}>Total: R$ <Text style={styles.value}>{item.valorTotal.toFixed(2)}</Text></Text>
+            <Text style={styles.label}>Confeiteira: <Text style={styles.value}>{item.nomeConfeiteira || item.confeiteira?.nomeloja || "Desconhecida"}</Text></Text>
+            <Text style={styles.label}>Data: <Text style={styles.value}>{item.dataPedido ? new Date(item.dataPedido).toLocaleDateString() : ""}</Text></Text>
+            <Text style={styles.label}>Total: R$ <Text style={styles.value}>{item.valorTotal ? item.valorTotal.toFixed(2) : "0.00"}</Text></Text>
             <Text style={styles.label}>Status: <Text style={styles.value}>{item.status}</Text></Text>
             <TouchableOpacity
     style={{ position: "absolute", top: 10, right: 10 }}

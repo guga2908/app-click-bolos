@@ -4,6 +4,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useRouter } from "expo-router"; // Adicione esta linha
 
 type Pedido = {
+  pagamento: string;
   id: number;
   NumeroPedido?: number;
   status?: string;
@@ -128,21 +129,24 @@ export default function PedidosClie() {
               <Text style={styles.valor}>Nenhum bolo neste pedido.</Text>
             )}
             <Text style={styles.label}>
-              Valor Total: <Text style={styles.valor}>R$ {item.valorTotal?.toFixed(2) ?? "?"}</Text>
-            </Text>
-            <Text style={styles.label}>
-              Endereço: <Text style={styles.valor}>{item.cliente?.endereco || "Desconhecido"}</Text>
-            </Text>
-            <Text style={styles.label}>
-              Contato: <Text style={styles.valor}>{item.cliente?.telefone || "Desconhecido"}</Text>
-            </Text>
-            {item.cliente?.telefone && (
-              <Button
-                title="WhatsApp"
-                color="#25D366"
-                onPress={() => Linking.openURL(`https://wa.me/55${item.cliente?.telefone}`)}
-              />
-            )}
+  Valor Total: <Text style={styles.valor}>R$ {item.valorTotal?.toFixed(2) ?? "?"}</Text>
+</Text>
+<Text style={styles.label}>
+  Pagamento: <Text style={styles.valor}>{item.pagamento || "Desconhecido"}</Text>
+</Text>
+<Text style={styles.label}>
+  Endereço: <Text style={styles.valor}>{item.cliente?.endereco || "Desconhecido"}</Text>
+</Text>
+<Text style={styles.label}>
+  Contato: <Text style={styles.valor}>{item.cliente?.telefone || "Desconhecido"}</Text>
+</Text>
+{item.cliente?.telefone && (
+  <Button
+    title="WhatsApp"
+    color="#25D366"
+    onPress={() => Linking.openURL(`https://wa.me/55${item.cliente?.telefone}`)}
+  />
+)}
           </View>
         )}
         ListEmptyComponent={<Text>Nenhum pedido encontrado.</Text>}

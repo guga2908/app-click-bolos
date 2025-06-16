@@ -1,6 +1,6 @@
 import { router, useLocalSearchParams, useRouter } from "expo-router";
 import React, { useEffect, useState } from "react";
-import { Alert, FlatList, Image, ImageBackground, Pressable, Text, TextInput, View } from "react-native";
+import { Alert, FlatList, Image, ImageBackground, Linking, Pressable, Text, TextInput, View } from "react-native";
 /* import { styles } from '../../../../Estilos/estiloPerfilConfeiteira'; */
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Ionicons } from '@expo/vector-icons';
@@ -16,6 +16,7 @@ export default function PerfilConfeteira() {
     horarioInicio: string;
     horarioFim: string;
     descricao: string;
+    telefone?: string;
   }
 interface Avaliacao {
   id: number;
@@ -218,6 +219,37 @@ interface Avaliacao {
             </Pressable>
           )}
         />
+      )}
+      {/* Botão para pedido personalizado */}
+      <Pressable
+        style={{
+    backgroundColor: "#FF7F50",
+    padding: 12,
+    borderRadius: 8,
+    alignItems: "center",
+    marginVertical: 10,
+  }}
+        onPress={() => router.push(`/perfils/Usuario/(drawer)/pedidosPersonalizados?id=${id}`)}
+      >
+        <Text style={{ color: "white", fontWeight: "bold" }}>Fazer Pedido Personalizado</Text>
+      </Pressable>
+
+      {/* Botão para WhatsApp da confeiteira */}
+      {confeiteira.telefone && (
+        <Pressable
+          style={{
+            backgroundColor: "#25D366",
+            padding: 12,
+            borderRadius: 8,
+            alignItems: "center",
+            marginBottom: 10,
+          }}
+          onPress={() =>
+            Linking.openURL(`https://wa.me/55${confeiteira.telefone!.replace(/\D/g, "")}`)
+          }
+        >
+          <Text style={{ color: "white", fontWeight: "bold" }}>WhatsApp da Confeiteira</Text>
+        </Pressable>
       )}
 
       <Text style={styles.catalogoTitulo}>Avaliações:</Text>
