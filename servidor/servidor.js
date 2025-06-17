@@ -270,20 +270,19 @@ app.post('/cliente/:clienteId/favoritos', async (req, res) => {
       return res.status(404).json({ message: 'Confeiteira não encontrada.' });
     }
     console.log('Imagem da confeiteira:', confeiteira.imagem);
-if (!confeiteira.imagem || confeiteira.imagem.trim() === '') {
+/* if (!confeiteira.imagem || confeiteira.imagem.trim() === '') {
   return res.status(400).json({ message: 'Confeiteira não possui imagem cadastrada.' });
-}
+} */
 
 
     // imagem pode ser null se não existir ou estiver vazia
     const imagem = confeiteira.imagem && confeiteira.imagem.trim() !== '' 
       ? confeiteira.imagem 
-      : null;
-
+      : "";
     const favorito = await prisma.favoritos.create({
       data: {
         nomeloja: confeiteira.nomeloja,
-        imagem: imagem,
+        imagem: imagem, // já tratado acima
         clienteId: Number(clienteId),
         confeiteiraId: Number(confeiteiraId)
       },
@@ -336,7 +335,6 @@ app.post('/avaliacoes', async(req, res) => {
 app.post('/pedidos', async (req, res) => {
   const {
     NumeroPedido,
-    nomeConfeiteira,
     endereco,
     dataPedido,
     valorTotal,
@@ -346,15 +344,24 @@ app.post('/pedidos', async (req, res) => {
     clienteId,
     itens, // <-- Recebendo os itens do pedido
   } = req.body;
-  if(!NumeroPedido || !nomeConfeiteira || !endereco || !dataPedido || !valorTotal || !status || !pagamento || !confeiteiraId || !clienteId || !itens) {
+  if(!NumeroPedido || !endereco || !dataPedido || !valorTotal || !status || !pagamento || !confeiteiraId || !clienteId || !itens) {
     return res.status(400).json({ message: 'Preencha todos os campos obrigatórios.' });
   }
 
   try {
+    // Buscar o nome da loja da confeiteira
+    const confeiteira = await prisma.confeiteira.findUnique({
+      where: { id: Number(confeiteiraId) }
+    });
+    if (!confeiteira) {
+      return res.status(404).json({ message: 'Confeiteira não encontrada.' });
+    }
+
     const novoPedido = await prisma.pedido.create({
       data: {
         NumeroPedido,
-        nomeConfeiteira,
+        nomeConfeiteira: confeiteira.nome, // ou confeiteira.nome se quiser o nome da confeiteira
+        nomeloja: confeiteira.nomeloja,    // <-- Pega do banco
         endereco,
         dataPedido,
         valorTotal,
@@ -362,7 +369,6 @@ app.post('/pedidos', async (req, res) => {
         pagamento,
         confeiteiraId,
         clienteId,
-        // NÃO coloque boloId aqui!
         itenspedido: {
           create: itens.map(item => ({
             boloId: item.boloId,
