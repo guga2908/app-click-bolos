@@ -65,6 +65,7 @@ export default function PedidosClie() {
         value={busca}
         onChangeText={setBusca}
         keyboardType="numeric"
+        placeholderTextColor="#b07080"
       />
       <View style={{ flexDirection: "row", marginBottom: 10 }}>
         <TouchableOpacity
@@ -74,7 +75,9 @@ export default function PedidosClie() {
           ]}
           onPress={() => setFiltroPersonalizado(null)}
         >
-          <Text>Todos</Text>
+          <Text style={filtroPersonalizado === null ? styles.filtroBtnTextAtivo : styles.filtroBtnText}>
+            Todos
+          </Text>
         </TouchableOpacity>
         <TouchableOpacity
           style={[
@@ -83,7 +86,9 @@ export default function PedidosClie() {
           ]}
           onPress={() => setFiltroPersonalizado(true)}
         >
-          <Text>Personalizados</Text>
+          <Text style={filtroPersonalizado === true ? styles.filtroBtnTextAtivo : styles.filtroBtnText}>
+            Personalizados
+          </Text>
         </TouchableOpacity>
         <TouchableOpacity
           style={[
@@ -92,7 +97,9 @@ export default function PedidosClie() {
           ]}
           onPress={() => setFiltroPersonalizado(false)}
         >
-          <Text>Não personalizados</Text>
+          <Text style={filtroPersonalizado === false ? styles.filtroBtnTextAtivo : styles.filtroBtnText}>
+            Não personalizados
+          </Text>
         </TouchableOpacity>
       </View>
       <FlatList
@@ -125,17 +132,49 @@ export default function PedidosClie() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 16, backgroundColor: "#fff" },
-  titulo: { fontSize: 22, fontWeight: "bold", marginBottom: 16 },
-  input: { borderWidth: 1, borderColor: "#ccc", borderRadius: 8, padding: 8, marginBottom: 10 },
-  pedidoBox: { backgroundColor: "#f9f9f9", padding: 12, borderRadius: 8, marginBottom: 12 },
-  label: { fontWeight: "bold" },
-  valor: { fontWeight: "normal" },
-  link: { color: "#007bff", marginTop: 8 },
-  pendente: { color: "#FFA500" },
-  producao: { color: "#007bff" },
-  entregue: { color: "#28a745" },
-  cancelado: { color: "#dc3545" },
-  filtroBtn: { padding: 8, borderWidth: 1, borderColor: "#ccc", borderRadius: 8, marginRight: 8 },
-  filtroBtnAtivo: { backgroundColor: "#e0e0e0" },
+  container: { flex: 1, padding: 16, backgroundColor: "#ffe6f0" }, // rosa claro de fundo
+  titulo: { fontSize: 22, fontWeight: "bold", marginBottom: 16, color: "#6b1049" }, // rosa escuro
+  input: { 
+    borderWidth: 1, 
+    borderColor: "#b07080", // rosa médio 
+    borderRadius: 8, 
+    padding: 8, 
+    marginBottom: 10,
+    backgroundColor: "#fff0f6", // rosa bem clarinho
+    color: "#6b1049", // texto rosa escuro
+  },
+  pedidoBox: { 
+    backgroundColor: "#fce7f3", // rosa bem clarinho
+    padding: 12, 
+    borderRadius: 8, 
+    marginBottom: 12,
+    borderWidth: 1,
+    borderColor: "#a05060", // marrom avermelhado
+  },
+  label: { fontWeight: "bold", color: "#6b1049" }, // rosa escuro
+  valor: { fontWeight: "normal", color: "#4a0c34" }, // rosa escuro mais suave
+  link: { color: "#7a4035", marginTop: 8, fontWeight: "bold" }, // marrom
+  pendente: { color: "#b35a70" }, // rosa meio marrom
+  producao: { color: "#6b1049" }, // rosa escuro
+  entregue: { color: "#7a4035" }, // marrom
+  cancelado: { color: "#552222" }, // marrom escuro
+  filtroBtn: { 
+    padding: 8, 
+    borderWidth: 1, 
+    borderColor: "#7a4035", // marrom
+    borderRadius: 8, 
+    marginRight: 8,
+    backgroundColor: "#f9d6e0", // rosa claro no botão
+  },
+  filtroBtnAtivo: { 
+    backgroundColor: "#7a4035", // marrom escuro quando ativo
+  },
+  filtroBtnText: {
+    color: "#7a4035", // marrom
+    fontWeight: "bold",
+  },
+  filtroBtnTextAtivo: {
+    color: "#fff", // branco para texto ativo
+    fontWeight: "bold",
+  },
 });

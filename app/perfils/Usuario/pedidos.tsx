@@ -136,27 +136,45 @@ export default function Pedidos() {
 
           <Text style={styles.label}>Quantidade (Kg):</Text>
           <View style={styles.kgContainer}>
-            <Button title="-" onPress={diminuirKg} />
+            <TouchableOpacity style={styles.kgButton} onPress={diminuirKg}>
+              <Text style={styles.kgButtonText}>-</Text>
+            </TouchableOpacity>
             <Text style={styles.kgText}>{quantidadeKg} Kg</Text>
-            <Button title="+" onPress={aumentarKg} />
+            <TouchableOpacity style={styles.kgButton} onPress={aumentarKg}>
+              <Text style={styles.kgButtonText}>+</Text>
+            </TouchableOpacity>
           </View>
 
           <Text style={styles.valor}>Valor total: R$ {valorTotal.toFixed(2)}</Text>
 
           <Text style={styles.label}>Forma de Pagamento:</Text>
-          {["Pix", "Crédito", "Débito", "Dinheiro"].map((forma) => (
-            <TouchableOpacity key={forma} onPress={() => setFormaDePagamento(forma)}>
-              <Text style={{ color: formadepagamento === forma ? "blue" : "black" }}>
-                {formadepagamento === forma ? "• " : ""}{forma}
-              </Text>
-            </TouchableOpacity>
-          ))}
+          <View style={styles.pagamentoContainer}>
+            {["Pix", "Crédito", "Débito", "Dinheiro"].map((forma) => (
+              <TouchableOpacity
+                key={forma}
+                style={[
+                  styles.pagamentoButton,
+                  formadepagamento === forma && styles.pagamentoButtonAtivo,
+                ]}
+                onPress={() => setFormaDePagamento(forma)}
+              >
+                <Text
+                  style={[
+                    styles.pagamentoButtonText,
+                    formadepagamento === forma && styles.pagamentoButtonTextAtivo,
+                  ]}
+                >
+                  {forma}
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </View>
 
           <Text style={styles.label}>Endereço de entrega:</Text>
           {endereco ? (
             <Text style={styles.endereco}>{endereco}</Text>
           ) : (
-            <Text>Carregando endereço...</Text>
+            <Text style={{ color: "#5d3a1a" }}>Carregando endereço...</Text>
           )}
 
           <Text style={styles.label}>Data de Entrega:</Text>
@@ -168,28 +186,25 @@ export default function Pedidos() {
             onChange={(event, selectedDate) => {
               if (selectedDate) setDataEntrega(selectedDate);
             }}
+            style={styles.datePicker}
           />
 
           {entregaHoje && (
-            <Text style={{ color: "red", marginTop: 10 }}>
+            <Text style={styles.alertaEntregaHoje}>
               Entrega para hoje! Será necessário confirmar disponibilidade com a confeiteira.
             </Text>
           )}
 
-          <View style={{ marginTop: 20 }}>
-            <Button
-              title="Confirmar Pedido"
-              onPress={ConfirmarPedidos}
-            />
-          </View>
+          <TouchableOpacity style={styles.confirmarBtn} onPress={ConfirmarPedidos}>
+            <Text style={styles.confirmarBtnText}>Confirmar Pedido</Text>
+          </TouchableOpacity>
 
-          <View style={{ marginTop: 10 }}>
-            <Button
-              title="Cancelar"
-              onPress={() => router.push("./(drawer)/index")}
-              color="gray"
-            />
-          </View>
+          <TouchableOpacity
+            style={styles.cancelarBtn}
+            onPress={() => router.push("./(drawer)/index")}
+          >
+            <Text style={styles.cancelarBtnText}>Cancelar</Text>
+          </TouchableOpacity>
         </>
       )}
     </View>
@@ -197,11 +212,115 @@ export default function Pedidos() {
 }
 
 const styles = StyleSheet.create({
-  container: { padding: 20 },
-  titulo: { fontSize: 22, fontWeight: "bold" },
-  valor: { fontSize: 16, marginVertical: 5 },
-  kgContainer: { flexDirection: "row", alignItems: "center", gap: 15, marginVertical: 10 },
-  kgText: { fontSize: 18 },
-  label: { fontSize: 16, fontWeight: "bold", marginTop: 10 },
-  endereco: { marginVertical: 5, fontSize: 16 },
+  container: {
+    padding: 20,
+    backgroundColor: "#f5f0fa", // roxo clarinho de fundo
+    flex: 1,
+  },
+  titulo: {
+    fontSize: 24,
+    fontWeight: "bold",
+    color: "#3b1761", // roxo escuro
+    marginBottom: 10,
+  },
+  valor: {
+    fontSize: 18,
+    marginVertical: 6,
+    color: "#4e2a8e", // roxo médio
+  },
+  label: {
+    fontSize: 16,
+    fontWeight: "bold",
+    marginTop: 15,
+    color: "#3b1761", // roxo escuro
+  },
+  endereco: {
+    fontSize: 16,
+    marginVertical: 6,
+    color: "#4e2a8e", // roxo médio
+  },
+  kgContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 15,
+    marginVertical: 10,
+  },
+  kgButton: {
+    backgroundColor: "#6a4b2a", // marrom escuro
+    borderRadius: 6,
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  kgButtonText: {
+    color: "#fff8f0", // quase branco
+    fontSize: 20,
+    fontWeight: "bold",
+  },
+  kgText: {
+    fontSize: 20,
+    color: "#3b1761", // roxo escuro
+    fontWeight: "bold",
+    minWidth: 80,
+    textAlign: "center",
+  },
+  pagamentoContainer: {
+    flexDirection: "row",
+    justifyContent: "space-around",
+    marginTop: 10,
+  },
+  pagamentoButton: {
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: "#6a4b2a", // marrom escuro
+    backgroundColor: "#f0e6dc", // bege claro
+  },
+  pagamentoButtonAtivo: {
+    backgroundColor: "#6a4b2a", // marrom escuro
+  },
+  pagamentoButtonText: {
+    color: "#6a4b2a", // marrom escuro
+    fontWeight: "bold",
+  },
+  pagamentoButtonTextAtivo: {
+    color: "#f0e6dc", // bege claro
+  },
+  datePicker: {
+    marginTop: 10,
+    marginBottom: 20,
+  },
+  alertaEntregaHoje: {
+    color: "#a63232", // vermelho meio queimado
+    marginTop: 10,
+    fontWeight: "bold",
+    textAlign: "center",
+  },
+  confirmarBtn: {
+    backgroundColor: "#6a4b2a", // marrom escuro
+    paddingVertical: 14,
+    borderRadius: 8,
+    marginTop: 20,
+  },
+  confirmarBtnText: {
+    color: "#f0e6dc", // bege claro
+    fontSize: 18,
+    fontWeight: "bold",
+    textAlign: "center",
+  },
+  cancelarBtn: {
+    backgroundColor: "#a3764a", // marrom médio
+    paddingVertical: 12,
+    borderRadius: 8,
+    marginTop: 12,
+  },
+  cancelarBtnText: {
+    color: "#fff8f0", // quase branco
+    fontSize: 16,
+    fontWeight: "bold",
+    textAlign: "center",
+  },
 });

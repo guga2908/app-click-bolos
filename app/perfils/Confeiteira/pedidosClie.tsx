@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { View, Text, FlatList, StyleSheet, Button, Linking } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { useRouter } from "expo-router"; // Adicione esta linha
+import { useRouter } from "expo-router";
 
 type Pedido = {
   pagamento: string;
@@ -27,7 +27,7 @@ type Pedido = {
 
 export default function PedidosClie() {
   const [pedidos, setPedidos] = useState<Pedido[]>([]);
-  const router = useRouter(); // Adicione esta linha
+  const router = useRouter();
 
   useEffect(() => {
     buscarPedidos();
@@ -42,7 +42,6 @@ export default function PedidosClie() {
       .catch(err => console.error("Erro ao buscar pedidos:", err));
   };
 
-  // Função para atualizar o status do pedido
   const atualizarStatus = async (pedidoId: number, novoStatus: string) => {
     try {
       const res = await fetch(`http://localhost:8081/pedidos/${pedidoId}/status`, {
@@ -51,7 +50,7 @@ export default function PedidosClie() {
         body: JSON.stringify({ status: novoStatus }),
       });
       if (res.ok) {
-        buscarPedidos(); // Atualiza a lista após a mudança
+        buscarPedidos();
       }
     } catch (err) {
       console.error("Erro ao atualizar status:", err);
@@ -75,7 +74,7 @@ export default function PedidosClie() {
 
   return (
     <View style={styles.container}>
-      <Button title="Voltar" onPress={() => router.back()} /> {/* Botão de voltar */}
+      <Button title="Voltar" onPress={() => router.back()} color="#8B4513" />
       <Text style={styles.titulo}>Pedidos Recebidos</Text>
       <FlatList
         data={pedidos}
@@ -88,16 +87,16 @@ export default function PedidosClie() {
             <Text style={styles.label}>
               Status: <Text style={[styles.valor, getStatusStyle(item.status)]}>{item.status || "Desconhecido"}</Text>
             </Text>
-            {/* Botões para mudar status */}
-            <View style={{ flexDirection: "row", gap: 8, marginVertical: 8 }}>
+            <View style={{ flexDirection: "row", gap: 8, marginVertical: 8, flexWrap: "wrap" }}>
               {["Pendente", "Em produção", "Entregue", "Cancelado"].map(status => (
-                <Button
-                  key={status}
-                  title={status}
-                  color={getStatusStyle(status).color || "#888"}
-                  onPress={() => atualizarStatus(item.id, status)}
-                  disabled={item.status === status}
-                />
+                <View style={{ marginRight: 6 }} key={status}>
+                  <Button
+                    title={status}
+                    color={getStatusStyle(status).color || "#888"}
+                    onPress={() => atualizarStatus(item.id, status)}
+                    disabled={item.status === status}
+                  />
+                </View>
               ))}
             </View>
             <Text style={styles.label}>
@@ -129,41 +128,70 @@ export default function PedidosClie() {
               <Text style={styles.valor}>Nenhum bolo neste pedido.</Text>
             )}
             <Text style={styles.label}>
-  Valor Total: <Text style={styles.valor}>R$ {item.valorTotal?.toFixed(2) ?? "?"}</Text>
-</Text>
-<Text style={styles.label}>
-  Pagamento: <Text style={styles.valor}>{item.pagamento || "Desconhecido"}</Text>
-</Text>
-<Text style={styles.label}>
-  Endereço: <Text style={styles.valor}>{item.cliente?.endereco || "Desconhecido"}</Text>
-</Text>
-<Text style={styles.label}>
-  Contato: <Text style={styles.valor}>{item.cliente?.telefone || "Desconhecido"}</Text>
-</Text>
-{item.cliente?.telefone && (
-  <Button
-    title="WhatsApp"
-    color="#25D366"
-    onPress={() => Linking.openURL(`https://wa.me/55${item.cliente?.telefone}`)}
-  />
-)}
+              Valor Total: <Text style={styles.valor}>R$ {item.valorTotal?.toFixed(2) ?? "?"}</Text>
+            </Text>
+            <Text style={styles.label}>
+              Pagamento: <Text style={styles.valor}>{item.pagamento || "Desconhecido"}</Text>
+            </Text>
+            <Text style={styles.label}>
+              Endereço: <Text style={styles.valor}>{item.cliente?.endereco || "Desconhecido"}</Text>
+            </Text>
+            <Text style={styles.label}>
+              Contato: <Text style={styles.valor}>{item.cliente?.telefone || "Desconhecido"}</Text>
+            </Text>
+            {item.cliente?.telefone && (
+              <Button
+                title="WhatsApp"
+                color="#25D366"
+                onPress={() => Linking.openURL(`https://wa.me/55${item.cliente?.telefone}`)}
+              />
+            )}
           </View>
         )}
-        ListEmptyComponent={<Text>Nenhum pedido encontrado.</Text>}
+        ListEmptyComponent={<Text style={{ textAlign: "center" }}>Nenhum pedido encontrado.</Text>}
       />
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 16, backgroundColor: "#fff" },
-  titulo: { fontSize: 22, fontWeight: "bold", marginBottom: 16 },
-  pedidoBox: { backgroundColor: "#f9f9f9", padding: 12, borderRadius: 8, marginBottom: 12, borderWidth: 1, borderColor: "#eee" },
-  itemBox: { marginLeft: 10, marginBottom: 5, backgroundColor: "#f1f1f1", borderRadius: 6, padding: 6 },
-  label: { fontWeight: "bold" },
-  valor: { fontWeight: "normal" },
-  pendente: { color: "#FFA500" },
-  producao: { color: "#007bff" },
-  entregue: { color: "#28a745" },
-  cancelado: { color: "#dc3545" }
+  container: {
+    flex: 1,
+    padding: 16,
+    backgroundColor: "#FFF0F5", // Fundo rosa claro
+  },
+  titulo: {
+    fontSize: 22,
+    fontWeight: "bold",
+    marginBottom: 16,
+    color: "#8B4513", // Marrom chocolate
+    textAlign: "center",
+  },
+  pedidoBox: {
+    backgroundColor: "#FADADD", // Rosa claro
+    padding: 12,
+    borderRadius: 8,
+    marginBottom: 12,
+    borderWidth: 1,
+    borderColor: "#C71585", // Rosa escuro
+  },
+  itemBox: {
+    marginLeft: 10,
+    marginBottom: 5,
+    backgroundColor: "#FFE4E1", // Rosa bem clarinho
+    borderRadius: 6,
+    padding: 6,
+  },
+  label: {
+    fontWeight: "bold",
+    color: "#8B4513", // Marrom chocolate
+  },
+  valor: {
+    fontWeight: "normal",
+    color: "#4B2E2E", // Marrom escuro
+  },
+  pendente: { color: "#C71585" }, // Rosa escuro
+  producao: { color: "#D2691E" }, // Marrom médio
+  entregue: { color: "#28a745" }, // Verde
+  cancelado: { color: "#B22222" }, // Vermelho queimado
 });

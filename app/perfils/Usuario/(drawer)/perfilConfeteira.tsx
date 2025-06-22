@@ -60,7 +60,7 @@ export default function PerfilConfeteira() {
         const response = await fetch(`http://${IP}:8081/confeiteira/${id}`);
         if (!response.ok) throw new Error("Erro ao buscar confeiteira");
         const data = await response.json();
-          setConfeiteira({
+        setConfeiteira({
           ...data,
           imagem: data.imagem
             ? data.imagem.startsWith("http")
@@ -78,7 +78,6 @@ export default function PerfilConfeteira() {
         const response = await fetch(`http://${IP}:8081/confeiteira/${id}/catalogo`);
         if (!response.ok) throw new Error("Erro ao buscar catálogo");
         const data = await response.json();
-        // Ajuste as URLs das imagens:
         const catalogoComUrl = Array.isArray(data)
           ? data.map((bolo) => ({
               ...bolo,
@@ -223,7 +222,11 @@ export default function PerfilConfeteira() {
           renderItem={({ item }) => (
             <Pressable onPress={() => router.push(`../pedidos?id=${item.id}`)}>
               <View style={styles.item}>
-                <Image source={{ uri: item.imagem }} style={styles.itemImagem} />
+                <Image
+                  source={{ uri: item.imagem }}
+                  style={styles.itemImagem}
+                  resizeMode="contain" // <- Ajuste que garante exibição correta
+                />
                 <Text style={styles.itemNome}>{item.nome}</Text>
                 <Text style={styles.itemDescricao}>{item.descricao}</Text>
                 <Text style={styles.itemPreco}>Preço: R$ {item.preco}</Text>
@@ -279,7 +282,7 @@ const { width } = Dimensions.get("window");
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#FFF0F5", // Rosa bem claro
+    backgroundColor: "#FFF0F5",
     padding: 20,
   },
   header: {
@@ -330,7 +333,7 @@ const styles = StyleSheet.create({
   },
   itemImagem: {
     width: "100%",
-    height: 180,
+    height: 200,
     borderRadius: 10,
   },
   itemNome: {

@@ -44,7 +44,7 @@ export default function Perfil() {
 
         const catalogoResponse = await fetch(`http://localhost:8081/confeiteira/${id}/catalogo`);
         const catalogoData = await catalogoResponse.json();
-        setCatalogo(Array.isArray(catalogoData) ? catalogoData : []); // <-- ajuste aqui
+        setCatalogo(Array.isArray(catalogoData) ? catalogoData : []);
       } catch (error) {
         console.error("Erro ao buscar dados da confeiteira:", error);
       }
@@ -119,15 +119,19 @@ export default function Perfil() {
     <ScrollView style={styles.container}>
       <View style={styles.section}>
         {Platform.OS === "web" && modoEdicao ? (
-          <input type="file" accept="image/*" onChange={(e) => {
-            const file = e.target.files?.[0];
-            if (file) {
-              setImagemArquivo(file);
-              const reader = new FileReader();
-              reader.onload = () => setImagem(reader.result as string);
-              reader.readAsDataURL(file);
-            }
-          }} />
+          <input
+            type="file"
+            accept="image/*"
+            onChange={(e) => {
+              const file = e.target.files?.[0];
+              if (file) {
+                setImagemArquivo(file);
+                const reader = new FileReader();
+                reader.onload = () => setImagem(reader.result as string);
+                reader.readAsDataURL(file);
+              }
+            }}
+          />
         ) : (
           <Pressable onPress={selecionarImagem}>
             {imagem ? (
@@ -214,7 +218,7 @@ export default function Perfil() {
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: "#ffe6f0", // rosa claro escuro
+    backgroundColor: "#ffe6f0",
     padding: 20,
     flex: 1,
   },
@@ -236,7 +240,7 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 1 },
   },
   button: {
-    backgroundColor: "#8B4513", // marrom chocolate
+    backgroundColor: "#8B4513",
     padding: 12,
     borderRadius: 10,
     marginTop: 10,
@@ -262,21 +266,28 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   card: {
-    backgroundColor: "#fceee3", // tom bege suave
-    padding: 10,
-    marginRight: 10,
+    backgroundColor: "#f8c8dc",
+    padding: 20,
+    marginRight: 20,
     borderRadius: 12,
-    width: 160,
+    width: 280,
     alignItems: "center",
+    shadowColor: "#a0527d",
+    shadowOpacity: 0.3,
+    shadowOffset: { width: 0, height: 3 },
+    shadowRadius: 5,
+    elevation: 5,
   },
   cardImage: {
-    width: 120,
-    height: 80,
-    borderRadius: 8,
-    marginBottom: 5,
+    width: 250,
+    height: 180,
+    borderRadius: 12,
+    marginBottom: 10,
   },
   cardText: {
-    fontSize: 12,
+    fontSize: 13,
     textAlign: "center",
+    color: "#4b2e3a",
+    fontWeight: "600",
   },
 });
