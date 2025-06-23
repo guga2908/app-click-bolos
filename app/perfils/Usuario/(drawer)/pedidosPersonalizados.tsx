@@ -177,7 +177,7 @@ export default function PedidosPersonalizados() {
         />
       )}
 
-      <Text style={styles.label}>Hora de Entrega</Text>
+      <Text style={styles.label}>Horario de Entrega</Text>
       {Platform.OS === "web" ? (
         <input
           type="time"
@@ -278,7 +278,7 @@ const styles = StyleSheet.create({
     fontSize: 16
   },
   botao: {
-    backgroundColor: "#4A148C", // 💜 roxo escuro no botão
+    backgroundColor: "#4A148C", // sroxo escuro no botão
     padding: 16,
     borderRadius: 12,
     alignItems: "center",
